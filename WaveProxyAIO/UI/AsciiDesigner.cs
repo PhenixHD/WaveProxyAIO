@@ -42,34 +42,5 @@ namespace WaveProxyAIO.UI {
             };
         }
 
-        // Multi-Line Main Menu Selection
-        public static string[] GetMainMenuSelection() {
-            return new string[] {
-        @"[1] Scrape Proxies",
-        @"[2] Check Proxies",
-        @"[3] Host Rotating",
-        @"[4] Settings",
-        @"[9] Information",
-        @"[0] Exit"
-    };
-        }
-
-        public static string[] GetSettingsMenuSelection() {
-            return new string[] {
-        @"[1] Timeout",
-        @"[2] Remove Duplicates"
-    };
-        }
-
-        public static string[] GetInformationMenuSelection() {
-            return new string[] {
-        @"[Application]",
-        @"Developer Build - Unfinished",
-        @"",
-        @"[Developer]",
-        @"Github: https://github.com/PhenixHD"
-    };
-        }
-
     }
 }

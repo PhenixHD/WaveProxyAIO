@@ -1,12 +1,14 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Pastel;
-using System.Drawing;
+using WaveProxyAIO.Interfaces;
+using WaveProxyAIO.Strategies;
 using WaveProxyAIO.UI;
 
 namespace WaveProxyAIO {
     internal class Program {
-        private static void Main(string[] args) {
+        private static async Task Main(string[] args) {
+
+            Console.Title = "Wave AIO";
 
             IConfigurationRoot config = new ConfigurationBuilder()
                 .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
@@ -14,6 +16,16 @@ namespace WaveProxyAIO {
                 .Build();
 
             IServiceCollection service = new ServiceCollection();
+
+            string? gradientType = config["GradientType"];
+
+            if (gradientType == "Vertical") {
+                service.AddSingleton<IGradientStrategy, VerticalGradientStrategy>();
+            } else {
+                Console.WriteLine("[WARNING] Invalid or missing 'GradientType' in appsettings.json. Defaulting to VerticalGradientStrategy.");
+                service.AddSingleton<IGradientStrategy, VerticalGradientStrategy>();
+            }
+
             service.AddSingleton<IConfiguration>(config);
             service.AddSingleton<GradientDesigner>();
 
@@ -21,9 +33,6 @@ namespace WaveProxyAIO {
             var gradientdesigner = provider.GetService<GradientDesigner>();
 
             gradientdesigner.WriteGradient(AsciiDesigner.Wave(), true);
-            gradientdesigner.WriteGradient(AsciiDesigner.Scraper(), true);
-            gradientdesigner.WriteGradient(AsciiDesigner.Checker(), true);
-            gradientdesigner.WriteGradient(AsciiDesigner.Info(), true);
 
         }
 
