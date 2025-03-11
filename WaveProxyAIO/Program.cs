@@ -6,7 +6,7 @@ using WaveProxyAIO.UI;
 
 namespace WaveProxyAIO {
     internal class Program {
-        private static async Task Main(string[] args) {
+        private static void Main(string[] args) {
 
             Console.Title = "Wave AIO";
 
@@ -21,6 +21,8 @@ namespace WaveProxyAIO {
 
             if (gradientType == "Vertical") {
                 service.AddSingleton<IGradientStrategy, VerticalGradientStrategy>();
+            } else if (gradientType == "Horizontal") {
+                service.AddSingleton<IGradientStrategy, HorizontalGradientStrategy>();
             } else {
                 Console.WriteLine("[WARNING] Invalid or missing 'GradientType' in appsettings.json. Defaulting to VerticalGradientStrategy.");
                 service.AddSingleton<IGradientStrategy, VerticalGradientStrategy>();

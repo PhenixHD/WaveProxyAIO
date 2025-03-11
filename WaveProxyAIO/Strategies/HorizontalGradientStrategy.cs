@@ -2,7 +2,7 @@
 using WaveProxyAIO.Interfaces;
 
 namespace WaveProxyAIO.Strategies {
-    internal class VerticalGradientStrategy : IGradientStrategy {
+    internal class HorizontalGradientStrategy : IGradientStrategy {
         public Color ColorRGB(int position, int totalLength, Color startColor, Color endColor) {
             int redDiff = endColor.R - startColor.R;
             int greenDiff = endColor.G - startColor.G;
