@@ -7,7 +7,12 @@
             } else {
                 return "".PadLeft(spaces);
             }
+        }
 
+        public static void PrintEmptyLine(int emptyLineCount = 1) {
+            for (int i = 0; i < emptyLineCount; i++) {
+                Console.WriteLine();
+            }
         }
     }
 }

@@ -34,7 +34,7 @@ namespace WaveProxyAIO {
             var provider = service.BuildServiceProvider();
             var gradientdesigner = provider.GetService<GradientDesigner>();
 
-            gradientdesigner.WriteGradient(AsciiDesigner.Wave(), true);
+            MainMenu.DisplayMenu(gradientdesigner);
 
         }
 
