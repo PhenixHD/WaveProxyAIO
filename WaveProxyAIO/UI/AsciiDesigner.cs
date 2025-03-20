@@ -42,5 +42,13 @@ namespace WaveProxyAIO.UI {
             };
         }
 
+        public static string[] MainMenu() {
+            return new string[] {
+                @"[1] Scrape Proxies",
+                @"[2] Check Proxies",
+                @"[3] Information",
+                @"[9] Exit"
+            };
+        }
     }
 }

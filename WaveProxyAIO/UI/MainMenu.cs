@@ -7,11 +7,7 @@
 
             UITextFormatter.PrintEmptyLine(4);
 
-            Console.WriteLine(
-                "[1] Scrape Proxies\n" +
-                "[2] Check Proxies\n" +
-                "[3] Info\n" +
-                "[9] Exit");
+            gradientDesigner.WriteGradient(AsciiDesigner.MainMenu());
         }
     }
 }

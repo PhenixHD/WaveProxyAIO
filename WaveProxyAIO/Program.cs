@@ -9,6 +9,7 @@ namespace WaveProxyAIO {
         private static void Main(string[] args) {
 
             Console.Title = "Wave AIO";
+            Console.CursorVisible = false;
 
             IConfigurationRoot config = new ConfigurationBuilder()
                 .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
@@ -34,7 +35,11 @@ namespace WaveProxyAIO {
             var provider = service.BuildServiceProvider();
             var gradientdesigner = provider.GetService<GradientDesigner>();
 
-            MainMenu.DisplayMenu(gradientdesigner);
+            //Main Logic
+            while (true) {
+                UI.MainMenu.DisplayMenu(gradientdesigner);
+                Handlers.MainMenuHandler.HandleUserInput(gradientdesigner, config);
+            }
 
         }
 
