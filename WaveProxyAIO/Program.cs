@@ -1,12 +1,14 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using WaveProxyAIO.Core;
 using WaveProxyAIO.Interfaces;
 using WaveProxyAIO.Strategies;
 using WaveProxyAIO.UI;
 
 namespace WaveProxyAIO {
     internal class Program {
-        private static void Main(string[] args) {
+        private static async Task Main(string[] args) {
+            //Practice project. 6th month programming.
 
             Console.Title = "Wave AIO";
             Console.CursorVisible = false;
@@ -16,32 +18,34 @@ namespace WaveProxyAIO {
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
 
-            IServiceCollection service = new ServiceCollection();
+            IServiceCollection services = new ServiceCollection();
 
             string? gradientType = config["GradientType"];
 
-            if (gradientType == "Vertical") {
-                service.AddSingleton<IGradientStrategy, VerticalGradientStrategy>();
-            } else if (gradientType == "Horizontal") {
-                service.AddSingleton<IGradientStrategy, HorizontalGradientStrategy>();
-            } else {
-                Console.WriteLine("[WARNING] Invalid or missing 'GradientType' in appsettings.json. Defaulting to VerticalGradientStrategy.");
-                service.AddSingleton<IGradientStrategy, VerticalGradientStrategy>();
-            }
+            services.AddSingleton<IGradientStrategy>(provider => gradientType switch {
+                "Horizontal" => new HorizontalGradientStrategy(),
+                _ => new VerticalGradientStrategy()
+            });
 
-            service.AddSingleton<IConfiguration>(config);
-            service.AddSingleton<GradientDesigner>();
+            HttpClient client = new HttpClient {
+                Timeout = TimeSpan.FromMilliseconds(int.Parse(config["Setting:Timeout"] ?? "1000"))
+            };
 
-            var provider = service.BuildServiceProvider();
-            var gradientdesigner = provider.GetService<GradientDesigner>();
+            services.AddSingleton<HttpClient>(client);
+            services.AddSingleton<IConfiguration>(config);
+            services.AddSingleton<GradientDesigner>();
+            services.AddSingleton<ProxyParser>();
+            services.AddSingleton<ProxyScraper>();
 
-            //Main Logic
+            var serviceProvider = services.BuildServiceProvider();
+            var gradientDesigner = serviceProvider.GetRequiredService<GradientDesigner>();
+            var proxyScraper = serviceProvider.GetRequiredService<ProxyScraper>();
+
+            // Main Logic
             while (true) {
-                UI.MainMenu.DisplayMenu(gradientdesigner);
-                Handlers.MainMenuHandler.HandleUserInput(gradientdesigner, config);
+                UI.MainMenu.DisplayMenu(gradientDesigner, config);
+                await Handlers.MainMenuHandler.HandleUserInput(gradientDesigner, proxyScraper, config);
             }
-
         }
-
     }
 }

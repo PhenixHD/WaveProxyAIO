@@ -9,13 +9,13 @@ namespace WaveProxyAIO.UI {
 
             UITextFormatter.PrintEmptyLine(2);
             Console.WriteLine("Wave Proxy AIO - v1.0.0");
-            Console.WriteLine("Last Update:\t07 March 2025");
-            Console.WriteLine("Developer:\tPhenixHD");
-            Console.WriteLine("Github: \thttps://github.com/PhenixHD");
+            Console.WriteLine("Last Update: 07 March 2025");
+            Console.WriteLine("Developer:   PhenixHD");
+            Console.WriteLine("Github:      https://github.com/PhenixHD");
 
             UITextFormatter.PrintEmptyLine(2);
             Console.WriteLine("Press any key to return to the main menu...");
-            Console.ReadKey();
+            Console.ReadKey(true);
         }
     }
 }
