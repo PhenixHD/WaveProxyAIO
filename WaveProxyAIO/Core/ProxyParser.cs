@@ -7,13 +7,14 @@ namespace WaveProxyAIO.Core {
         private readonly SemaphoreSlim _semaphore;
         private static readonly object _lock = new object();
 
-        public ProxyParser(IConfiguration config, HttpClient client) {
+        public ProxyParser(IConfiguration config, HttpClient client, SemaphoreSlim semaphore) {
             _client = client ?? throw new ArgumentNullException(nameof(client));
-            _semaphore = new SemaphoreSlim(int.Parse(config["Setting:Thread"] ?? "10"));
+            _semaphore = semaphore ?? throw new ArgumentNullException(nameof(semaphore));
         }
 
         public async Task ParseWebsite() {
             List<string> urls = Handlers.FileHandler.GetURL();
+            int urlCount = 0;
 
             Regex proxyRegex = new Regex(@"\b\d{1,3}(?:\.\d{1,3}){3}:(?:[0-5]?\d{1,4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])\b", RegexOptions.Compiled);
             List<string> validProxies = new List<string>();
@@ -21,6 +22,7 @@ namespace WaveProxyAIO.Core {
             var tasks = urls.Select(async url => {
                 await _semaphore.WaitAsync();
                 try {
+                    urlCount++;
                     string rawData = await _client.GetStringAsync(url);
                     string[] lines = rawData.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -33,7 +35,7 @@ namespace WaveProxyAIO.Core {
                     }
 
                     lock (_lock) {
-                        UpdateProxyCount(validProxies.Count);
+                        UpdateProxyCount(validProxies.Count, urls.Count, urlCount);
                     }
 
                 } catch (HttpRequestException e) {
@@ -50,13 +52,15 @@ namespace WaveProxyAIO.Core {
             Console.WriteLine("Done");
         }
 
-        private void UpdateProxyCount(int count) {
+        private void UpdateProxyCount(int proxyCount, int urlCount, int urlProgress) {
 
             int currentLeft = Console.CursorLeft;
             int currentTop = Console.CursorTop;
 
             Console.SetCursorPosition(currentLeft, currentTop);
-            Console.Write($"Proxies: {count}");
+            Console.Write($"Loaded URLs: {urlCount}\n" +
+                $"Progress: {urlProgress}/{urlCount}\n" +
+                $"Proxies: {proxyCount}");
 
             Console.SetCursorPosition(currentLeft, currentTop);
         }

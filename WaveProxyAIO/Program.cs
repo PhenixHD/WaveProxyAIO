@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Threading;
 using WaveProxyAIO.Core;
 using WaveProxyAIO.Interfaces;
 using WaveProxyAIO.Strategies;
@@ -31,7 +32,10 @@ namespace WaveProxyAIO {
                 Timeout = TimeSpan.FromMilliseconds(int.Parse(config["Setting:Timeout"] ?? "1000"))
             };
 
+            SemaphoreSlim semaphore = new SemaphoreSlim(int.Parse(config["Setting:Threads"] ?? "10"));
+
             services.AddSingleton<HttpClient>(client);
+            services.AddSingleton<SemaphoreSlim>(semaphore);
             services.AddSingleton<IConfiguration>(config);
             services.AddSingleton<GradientDesigner>();
             services.AddSingleton<ProxyParser>();
