@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Threading;
 using WaveProxyAIO.Core;
 using WaveProxyAIO.Interfaces;
 using WaveProxyAIO.Strategies;

@@ -14,34 +14,36 @@ namespace WaveProxyAIO.Core {
 
         public async Task ParseWebsite() {
             List<string> urls = Handlers.FileHandler.GetURL();
-            int urlCount = 0;
+            int currentProgress = 0;
 
             Regex proxyRegex = new Regex(@"\b\d{1,3}(?:\.\d{1,3}){3}:(?:[0-5]?\d{1,4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])\b", RegexOptions.Compiled);
             List<string> validProxies = new List<string>();
 
             var tasks = urls.Select(async url => {
                 await _semaphore.WaitAsync();
+                currentProgress++;
                 try {
-                    urlCount++;
                     string rawData = await _client.GetStringAsync(url);
                     string[] lines = rawData.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
+                    List<string> localProxies = new List<string>();
                     foreach (string line in lines) {
                         MatchCollection matches = proxyRegex.Matches(line);
 
                         foreach (Match match in matches) {
-                            validProxies.Add(match.Value);
+                            localProxies.Add(match.Value);
                         }
                     }
 
                     lock (_lock) {
-                        UpdateProxyCount(validProxies.Count, urls.Count, urlCount);
+                        validProxies.AddRange(localProxies);
+                        UpdateProxyCount(validProxies.Count, urls.Count, currentProgress);
                     }
 
                 } catch (HttpRequestException e) {
-                    // Handle request error
+                    // Handle request error - need to figure out good way to display
                 } catch (Exception e) {
-                    // Handle unexpected error
+                    // Handle unexpected error - need to figure out good way to display
                 } finally {
                     _semaphore.Release();
                 }
