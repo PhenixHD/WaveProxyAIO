@@ -1,11 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
-
-namespace WaveProxyAIO.Core {
+﻿namespace WaveProxyAIO.Core {
     internal class ProxyScraper {
-        private readonly IConfiguration _config;
         private readonly ProxyParser _parser;
-        public ProxyScraper(ProxyParser parser, IConfiguration config) {
-            _config = config;
+        public ProxyScraper(ProxyParser parser) {
             _parser = parser;
         }
 
@@ -20,7 +16,8 @@ namespace WaveProxyAIO.Core {
                 return;
             }
 
-            await _parser.ParseWebsite();
+            string[] parsedProxies = await _parser.ParseWebsite();
+            Handlers.FileHandler.SaveProxiesToFile(parsedProxies);
 
             UI.UITextFormatter.PrintEmptyLine(4);
             Console.WriteLine("Press any key to return...");

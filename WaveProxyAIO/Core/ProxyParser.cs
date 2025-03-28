@@ -12,7 +12,8 @@ namespace WaveProxyAIO.Core {
             _semaphore = semaphore ?? throw new ArgumentNullException(nameof(semaphore));
         }
 
-        public async Task ParseWebsite() {
+        public async Task<string[]> ParseWebsite() {
+
             List<string> urls = Handlers.FileHandler.GetURL();
             int currentProgress = 0;
 
@@ -20,8 +21,10 @@ namespace WaveProxyAIO.Core {
             List<string> validProxies = new List<string>();
 
             var tasks = urls.Select(async url => {
+
                 await _semaphore.WaitAsync();
                 currentProgress++;
+
                 try {
                     string rawData = await _client.GetStringAsync(url);
                     string[] lines = rawData.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
@@ -37,7 +40,7 @@ namespace WaveProxyAIO.Core {
 
                     lock (_lock) {
                         validProxies.AddRange(localProxies);
-                        UpdateProxyCount(validProxies.Count, urls.Count, currentProgress);
+                        //UI.ScraperStatus.DisplayScraperStatus(validProxies.Count, urls.Count, currentProgress);
                     }
 
                 } catch (HttpRequestException e) {
@@ -47,24 +50,14 @@ namespace WaveProxyAIO.Core {
                 } finally {
                     _semaphore.Release();
                 }
+
             }).ToList();
 
             await Task.WhenAll(tasks);
+            HashSet<string> proxyMap = new HashSet<string>(validProxies.ToArray());
+            return proxyMap.ToArray();
 
-            Console.WriteLine("Done");
         }
 
-        private void UpdateProxyCount(int proxyCount, int urlCount, int urlProgress) {
-
-            int currentLeft = Console.CursorLeft;
-            int currentTop = Console.CursorTop;
-
-            Console.SetCursorPosition(currentLeft, currentTop);
-            Console.Write($"Loaded URLs: {urlCount}\n" +
-                $"Progress: {urlProgress}/{urlCount}\n" +
-                $"Proxies: {proxyCount}");
-
-            Console.SetCursorPosition(currentLeft, currentTop);
-        }
     }
 }
