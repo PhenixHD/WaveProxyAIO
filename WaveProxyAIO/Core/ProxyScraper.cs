@@ -24,6 +24,8 @@ namespace WaveProxyAIO.Core {
                 return;
             }
 
+            _menuRenderer.ShowScraperConfig();
+
             await _parser.ParseWebsite();
 
             UI.ConsoleTextFormatter.PrintEmptyLine(4);
