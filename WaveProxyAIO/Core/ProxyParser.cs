@@ -1,63 +1,56 @@
-﻿using Microsoft.Extensions.Configuration;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using WaveProxyAIO.Helpers;
+using WaveProxyAIO.UI;
 
 namespace WaveProxyAIO.Core {
-    internal class ProxyParser {
-        private readonly HttpClient _client;
-        private readonly SemaphoreSlim _semaphore;
-        private static readonly object _lock = new object();
+    internal class ProxyParser(HttpClient client, SemaphoreSlim semaphore, MenuRenderer menuRenderer) {
 
-        public ProxyParser(IConfiguration config, HttpClient client, SemaphoreSlim semaphore) {
-            _client = client ?? throw new ArgumentNullException(nameof(client));
-            _semaphore = semaphore ?? throw new ArgumentNullException(nameof(semaphore));
-        }
+        private readonly HttpClient _client = client ?? throw new ArgumentNullException(nameof(client));
+        private readonly SemaphoreSlim _semaphore = semaphore ?? throw new ArgumentNullException(nameof(semaphore));
+        private readonly MenuRenderer _menuRenderer = menuRenderer ?? throw new ArgumentNullException(nameof(menuRenderer));
 
-        public async Task<string[]> ParseWebsite() {
+        private static readonly char[] _lineSeparators = ['\r', '\n'];
+        private static readonly object _lock = new();
 
-            List<string> urls = Handlers.FileHandler.GetURL();
+        public async Task ParseWebsite() {
+            List<string> urls = Handlers.FileHandler.GetUrlsFromFile();
             int currentProgress = 0;
 
-            Regex proxyRegex = new Regex(@"\b\d{1,3}(?:\.\d{1,3}){3}:(?:[0-5]?\d{1,4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])\b", RegexOptions.Compiled);
-            List<string> validProxies = new List<string>();
+            Regex proxyRegex = RegexHelper.ProxyRegexPattern();
 
-            var tasks = urls.Select(async url => {
-
+            var tasks = urls.Select(url => Task.Run(async () => {
                 await _semaphore.WaitAsync();
-                currentProgress++;
-
                 try {
                     string rawData = await _client.GetStringAsync(url);
-                    string[] lines = rawData.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] lines = rawData.Split(_lineSeparators, StringSplitOptions.RemoveEmptyEntries);
 
-                    List<string> localProxies = new List<string>();
+                    List<string> scrapedProxies = new();
+
                     foreach (string line in lines) {
                         MatchCollection matches = proxyRegex.Matches(line);
 
                         foreach (Match match in matches) {
-                            localProxies.Add(match.Value);
+                            scrapedProxies.Add(match.Value);
                         }
                     }
 
                     lock (_lock) {
-                        validProxies.AddRange(localProxies);
-                        //UI.ScraperStatus.DisplayScraperStatus(validProxies.Count, urls.Count, currentProgress);
+                        Handlers.FileHandler.AppendProxiesToFile([.. scrapedProxies]);
+                        _menuRenderer.ShowScraperStatus(scrapedProxies.Count, urls.Count, ++currentProgress);
                     }
 
+                    scrapedProxies.Clear();
+
                 } catch (HttpRequestException e) {
-                    // Handle request error - need to figure out good way to display
+                    Handlers.FileHandler.AppendLogToFile(e.Message);
                 } catch (Exception e) {
-                    // Handle unexpected error - need to figure out good way to display
+                    Handlers.FileHandler.AppendLogToFile(e.Message);
                 } finally {
                     _semaphore.Release();
                 }
-
-            }).ToList();
+            })).ToList();
 
             await Task.WhenAll(tasks);
-            HashSet<string> proxyMap = new HashSet<string>(validProxies.ToArray());
-            return proxyMap.ToArray();
-
         }
-
     }
 }

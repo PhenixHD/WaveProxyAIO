@@ -1,13 +1,14 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using WaveProxyAIO.Core;
+using WaveProxyAIO.Handlers;
 using WaveProxyAIO.Interfaces;
 using WaveProxyAIO.Strategies;
 using WaveProxyAIO.UI;
 
 namespace WaveProxyAIO {
     internal class Program {
-        private static async Task Main(string[] args) {
+        private static async Task Main() {
             //Practice project. 6th month programming.
 
             Console.Title = "Wave AIO";
@@ -27,11 +28,11 @@ namespace WaveProxyAIO {
                 _ => new VerticalGradientStrategy()
             });
 
-            HttpClient client = new HttpClient {
+            HttpClient client = new() {
                 Timeout = TimeSpan.FromMilliseconds(int.Parse(config["Setting:Timeout"] ?? "1000"))
             };
 
-            SemaphoreSlim semaphore = new SemaphoreSlim(int.Parse(config["Setting:Threads"] ?? "10"));
+            SemaphoreSlim semaphore = new(int.Parse(config["Setting:Threads"] ?? "10"));
 
             services.AddSingleton<HttpClient>(client);
             services.AddSingleton<SemaphoreSlim>(semaphore);
@@ -39,15 +40,18 @@ namespace WaveProxyAIO {
             services.AddSingleton<GradientDesigner>();
             services.AddSingleton<ProxyParser>();
             services.AddSingleton<ProxyScraper>();
+            services.AddSingleton<MenuRenderer>();
+            services.AddSingleton<MainMenuHandler>();
 
             var serviceProvider = services.BuildServiceProvider();
-            var gradientDesigner = serviceProvider.GetRequiredService<GradientDesigner>();
-            var proxyScraper = serviceProvider.GetRequiredService<ProxyScraper>();
+
+            var menuRenderer = serviceProvider.GetRequiredService<MenuRenderer>();
+            var mainMenuHandler = serviceProvider.GetRequiredService<MainMenuHandler>();
 
             // Main Logic
             while (true) {
-                UI.MainMenu.DisplayMenu(gradientDesigner, config);
-                await Handlers.MainMenuHandler.HandleUserInput(gradientDesigner, proxyScraper, config);
+                menuRenderer.ShowMainMenu();
+                await mainMenuHandler.HandleUserInput();
             }
         }
     }

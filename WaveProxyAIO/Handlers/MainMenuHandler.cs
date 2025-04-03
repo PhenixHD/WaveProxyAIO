@@ -1,18 +1,20 @@
-﻿using Microsoft.Extensions.Configuration;
-using WaveProxyAIO.Core;
+﻿using WaveProxyAIO.Core;
 using WaveProxyAIO.UI;
 
 namespace WaveProxyAIO.Handlers {
-    internal class MainMenuHandler {
-        public static async Task HandleUserInput(GradientDesigner gradientDesigner, ProxyScraper scraper, IConfiguration config) {
+    internal class MainMenuHandler(ProxyScraper scraper, MenuRenderer menuRenderer) {
+
+        private readonly MenuRenderer _menuRenderer = menuRenderer ?? throw new ArgumentNullException(nameof(menuRenderer));
+        private readonly ProxyScraper _scraper = scraper ?? throw new ArgumentNullException(nameof(scraper));
+
+        public async Task HandleUserInput() {
             while (true) {
                 char input = Console.ReadKey(true).KeyChar;
 
                 switch (input) {
                     case '1':
-                        Console.WriteLine("");
-                        UI.ScraperMenu.DisplayScraper(gradientDesigner, config);
-                        await scraper.Scrape();
+                        _menuRenderer.ShowScraperMenu();
+                        await _scraper.ScrapeProxies();
                         return;
 
                     case '2':
@@ -21,8 +23,7 @@ namespace WaveProxyAIO.Handlers {
                         return;
 
                     case '3':
-                        Console.WriteLine("");
-                        UI.InfoMenu.DisplayInfo(gradientDesigner, config);
+                        _menuRenderer.ShowInfoMenu();
                         return;
 
                     case '9':
@@ -30,8 +31,7 @@ namespace WaveProxyAIO.Handlers {
                         break;
 
                     default:
-                        Console.WriteLine("");
-                        UI.MainMenu.DisplayMenu(gradientDesigner, config);
+                        _menuRenderer.ShowMainMenu();
                         break;
                 }
             }

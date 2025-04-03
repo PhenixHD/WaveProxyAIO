@@ -1,5 +1,5 @@
 ﻿namespace WaveProxyAIO.UI {
-    internal class UITextFormatter {
+    internal class ConsoleTextFormatter {
         public static string CenterText(string text, bool isString = true) {
             int spaces = Math.Max(0, (Console.WindowWidth - text.Length) / 2);
             if (isString) {

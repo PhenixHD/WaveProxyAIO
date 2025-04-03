@@ -36,7 +36,7 @@ namespace WaveProxyAIO.UI {
         }
 
         //Writes asciiArt in Vertical/Horizontal Gradient Color
-        public void WriteGradient(string[] asciiArt, bool centerText = false) {
+        public void DisplayGradient(string[] asciiArt, bool centerText = false) {
 
             if (asciiArt == null || asciiArt.Length == 0) {
                 throw new ArgumentException("ASCII art cannot be null or empty.");
@@ -45,7 +45,7 @@ namespace WaveProxyAIO.UI {
             if (_gradient is HorizontalGradientStrategy) {
                 foreach (string line in asciiArt) {
                     if (centerText)
-                        Console.Write(UITextFormatter.CenterText(line, false));
+                        Console.Write(ConsoleTextFormatter.CenterText(line, false));
 
                     for (int i = 0; i < line.Length; i++) {
                         Color charColor = _gradient.ColorRGB(i, line.Length, _startColor, _endColor);
@@ -57,7 +57,7 @@ namespace WaveProxyAIO.UI {
                 for (int i = 0; i < asciiArt.Length; i++) {
                     Color currentColor = _gradient.ColorRGB(i, asciiArt.Length, _startColor, _endColor);
                     if (centerText) {
-                        Console.WriteLine(UITextFormatter.CenterText(asciiArt[i]).Pastel(currentColor));
+                        Console.WriteLine(ConsoleTextFormatter.CenterText(asciiArt[i]).Pastel(currentColor));
                     } else {
                         Console.WriteLine(asciiArt[i].Pastel(currentColor));
                     }

@@ -1,27 +1,39 @@
-﻿namespace WaveProxyAIO.Core {
-    internal class ProxyScraper {
-        private readonly ProxyParser _parser;
-        public ProxyScraper(ProxyParser parser) {
-            _parser = parser;
-        }
+﻿using Microsoft.Extensions.Configuration;
+using WaveProxyAIO.UI;
 
-        //handles scraping
-        public async Task Scrape() {
-            if (!Handlers.FileHandler.ValidateURL()) {
-                Handlers.FileHandler.CreateURL();
+namespace WaveProxyAIO.Core {
+    internal class ProxyScraper(ProxyParser parser, MenuRenderer menuRenderer, IConfiguration config) {
 
-                UI.UITextFormatter.PrintEmptyLine(4);
+        private readonly MenuRenderer _menuRenderer = menuRenderer ?? throw new ArgumentNullException(nameof(menuRenderer));
+        private readonly ProxyParser _parser = parser ?? throw new ArgumentNullException(nameof(parser));
+        private readonly bool _removeDupe = bool.Parse(config["Setting:RemoveDupe"] ?? "true");
+
+        public async Task ScrapeProxies() {
+
+            EmptyAllFiles();
+
+            if (!Handlers.FileHandler.CheckUrlFileExists()) {
+
+                _menuRenderer.ShowUrlFileMissing();
+
+                Handlers.FileHandler.CreateUrlFile();
+
+                UI.ConsoleTextFormatter.PrintEmptyLine(4);
                 Console.WriteLine("Press any key to return...");
                 Console.ReadKey();
                 return;
             }
 
-            string[] parsedProxies = await _parser.ParseWebsite();
-            Handlers.FileHandler.SaveProxiesToFile(parsedProxies);
+            await _parser.ParseWebsite();
 
-            UI.UITextFormatter.PrintEmptyLine(4);
+            UI.ConsoleTextFormatter.PrintEmptyLine(4);
             Console.WriteLine("Press any key to return...");
             Console.ReadKey();
+        }
+
+        private void EmptyAllFiles() {
+            Handlers.FileHandler.ClearLogFile();
+            Handlers.FileHandler.ClearProxyFile();
         }
 
     }
