@@ -35,7 +35,7 @@ namespace WaveProxyAIO.UI {
             _gradient = gradient;
         }
 
-        //Writes asciiArt in Vertical/Horizontal Gradient Color
+        //TODO: Refractor rendering of gradient
         public void DisplayGradient(string[] asciiArt, bool centerText = false) {
 
             if (asciiArt == null || asciiArt.Length == 0) {

@@ -3,18 +3,21 @@ using WaveProxyAIO.Helpers;
 using WaveProxyAIO.UI;
 
 namespace WaveProxyAIO.Core {
-    internal class ProxyParser(HttpClient client, SemaphoreSlim semaphore, MenuRenderer menuRenderer) {
+    internal class ProxyParser(HttpClient client, SemaphoreSlim semaphore, MenuRenderer menuRenderer, ScraperStats scraperStats) {
 
         private readonly HttpClient _client = client ?? throw new ArgumentNullException(nameof(client));
         private readonly SemaphoreSlim _semaphore = semaphore ?? throw new ArgumentNullException(nameof(semaphore));
         private readonly MenuRenderer _menuRenderer = menuRenderer ?? throw new ArgumentNullException(nameof(menuRenderer));
+        private readonly ScraperStats _scraperStats = scraperStats ?? throw new ArgumentNullException(nameof(scraperStats));
 
         private static readonly char[] _lineSeparators = ['\r', '\n'];
         private static readonly object _lock = new();
 
+        //TODO: Implement tracking of duplicate proxies
         public async Task ParseWebsite() {
             List<string> urls = Handlers.FileHandler.GetUrlsFromFile();
-            int currentProgress = 0;
+
+            _scraperStats.TotalUrls = urls.Count;
 
             Regex proxyRegex = RegexHelper.ProxyRegexPattern();
 
@@ -28,27 +31,29 @@ namespace WaveProxyAIO.Core {
 
                     foreach (string line in lines) {
                         MatchCollection matches = proxyRegex.Matches(line);
-
                         foreach (Match match in matches) {
                             scrapedProxies.Add(match.Value);
                         }
                     }
 
+                    _scraperStats.TotalProxies += scrapedProxies.Count;
+
                     lock (_lock) {
                         Handlers.FileHandler.AppendProxiesToFile([.. scrapedProxies]);
-                        _menuRenderer.ShowScraperStatus(scrapedProxies.Count, urls.Count, ++currentProgress);
                     }
 
                     scrapedProxies.Clear();
-
+                    _scraperStats.ValidUrls++;
                 } catch (HttpRequestException e) {
                     Handlers.FileHandler.AppendLogToFile(e.Message);
                 } catch (Exception e) {
                     Handlers.FileHandler.AppendLogToFile(e.Message);
                 } finally {
+                    _scraperStats.ParsedUrls++;
+                    _menuRenderer.ShowScraperStatus();
                     _semaphore.Release();
                 }
-            })).ToList();
+            }));
 
             await Task.WhenAll(tasks);
         }

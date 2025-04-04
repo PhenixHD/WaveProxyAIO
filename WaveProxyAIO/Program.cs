@@ -42,6 +42,7 @@ namespace WaveProxyAIO {
             services.AddSingleton<ProxyScraper>();
             services.AddSingleton<MenuRenderer>();
             services.AddSingleton<MainMenuHandler>();
+            services.AddSingleton<ScraperStats>();
 
             var serviceProvider = services.BuildServiceProvider();
 

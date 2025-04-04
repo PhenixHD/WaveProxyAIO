@@ -18,7 +18,7 @@ namespace WaveProxyAIO.Core {
 
                 Handlers.FileHandler.CreateUrlFile();
 
-                UI.ConsoleTextFormatter.PrintEmptyLine(4);
+                ConsoleTextFormatter.PrintEmptyLine(4);
                 Console.WriteLine("Press any key to return...");
                 Console.ReadKey();
                 return;
@@ -26,9 +26,11 @@ namespace WaveProxyAIO.Core {
 
             _menuRenderer.ShowScraperConfig();
 
+            //TODO: Implement automatic duplicate removal - setting based on config
+            //FIX: Move return to Main menu text to bottom -> Own method in MenuRenderer
             await _parser.ParseWebsite();
 
-            UI.ConsoleTextFormatter.PrintEmptyLine(4);
+            ConsoleTextFormatter.PrintEmptyLine(4);
             Console.WriteLine("Press any key to return...");
             Console.ReadKey();
         }
