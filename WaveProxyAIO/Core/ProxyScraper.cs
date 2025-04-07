@@ -2,15 +2,17 @@
 using WaveProxyAIO.UI;
 
 namespace WaveProxyAIO.Core {
-    internal class ProxyScraper(ProxyParser parser, MenuRenderer menuRenderer, IConfiguration config) {
+    internal class ProxyScraper(ProxyParser parser, MenuRenderer menuRenderer, ScraperStats scraperStats, IConfiguration config) {
 
         private readonly MenuRenderer _menuRenderer = menuRenderer ?? throw new ArgumentNullException(nameof(menuRenderer));
         private readonly ProxyParser _parser = parser ?? throw new ArgumentNullException(nameof(parser));
+        private readonly ScraperStats _scraperStats = scraperStats ?? throw new ArgumentNullException(nameof(scraperStats));
         private readonly bool _removeDupe = bool.Parse(config["Setting:RemoveDupe"] ?? "true");
 
         public async Task ScrapeProxies() {
 
             EmptyAllFiles();
+            _scraperStats.Reset();
 
             if (!Handlers.FileHandler.CheckUrlFileExists()) {
 
@@ -30,7 +32,7 @@ namespace WaveProxyAIO.Core {
             //FIX: Move return to Main menu text to bottom -> Own method in MenuRenderer
             await _parser.ParseWebsite();
 
-            ConsoleTextFormatter.PrintEmptyLine(4);
+            ConsoleTextFormatter.PrintEmptyLine(2);
             Console.WriteLine("Press any key to return...");
             Console.ReadKey();
         }

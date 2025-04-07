@@ -4,7 +4,6 @@ using WaveProxyAIO.UI;
 
 namespace WaveProxyAIO.Core {
     internal class ProxyParser(HttpClient client, SemaphoreSlim semaphore, MenuRenderer menuRenderer, ScraperStats scraperStats) {
-
         private readonly HttpClient _client = client ?? throw new ArgumentNullException(nameof(client));
         private readonly SemaphoreSlim _semaphore = semaphore ?? throw new ArgumentNullException(nameof(semaphore));
         private readonly MenuRenderer _menuRenderer = menuRenderer ?? throw new ArgumentNullException(nameof(menuRenderer));
@@ -49,13 +48,20 @@ namespace WaveProxyAIO.Core {
                 } catch (Exception e) {
                     Handlers.FileHandler.AppendLogToFile(e.Message);
                 } finally {
-                    _scraperStats.ParsedUrls++;
-                    _menuRenderer.ShowScraperStatus();
-                    _semaphore.Release();
+                    lock (_lock) {
+                        int currentLeft = Console.CursorLeft;
+                        int currentTop = Console.CursorTop;
+                        _scraperStats.ParsedUrls++;
+                        _menuRenderer.ShowScraperStatus();
+                        Console.SetCursorPosition(currentLeft, currentTop);
+                        _semaphore.Release();
+                    }
                 }
             }));
 
             await Task.WhenAll(tasks);
+
+            _menuRenderer.ShowScraperStatus();
         }
     }
 }
