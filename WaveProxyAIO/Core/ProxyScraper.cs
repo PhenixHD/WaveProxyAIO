@@ -1,13 +1,13 @@
 ﻿using Microsoft.Extensions.Configuration;
+using WaveProxyAIO.Handlers;
 using WaveProxyAIO.UI;
 
 namespace WaveProxyAIO.Core {
-    internal class ProxyScraper(ProxyParser parser, MenuRenderer menuRenderer, ScraperStats scraperStats, IConfiguration config) {
+    internal class ProxyScraper(ProxyParser parser, MenuRenderer menuRenderer, ScraperStats scraperStats) {
 
         private readonly MenuRenderer _menuRenderer = menuRenderer ?? throw new ArgumentNullException(nameof(menuRenderer));
         private readonly ProxyParser _parser = parser ?? throw new ArgumentNullException(nameof(parser));
         private readonly ScraperStats _scraperStats = scraperStats ?? throw new ArgumentNullException(nameof(scraperStats));
-        private readonly bool _removeDupe = bool.Parse(config["Setting:RemoveDupe"] ?? "true");
 
         public async Task ScrapeProxies() {
 

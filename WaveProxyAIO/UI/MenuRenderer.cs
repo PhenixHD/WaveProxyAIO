@@ -54,7 +54,7 @@ namespace WaveProxyAIO.UI {
 
                 ConsoleTextFormatter.PrintEmptyLine(1);
                 Console.WriteLine("[ Proxy Stats ]");
-                Console.WriteLine($"Found       : {_scraperStats.TotalProxies}");
+                Console.WriteLine($"Total found : {_scraperStats.TotalProxies}");
                 Console.WriteLine($"Duplicates  : {_scraperStats.DuplicateCount}");
                 Console.WriteLine($"Avg/Site    : {_scraperStats.ProxiesPerSite}");
                 Console.WriteLine($"Proxies/sec : {_scraperStats.ProxiesPerSecond}");

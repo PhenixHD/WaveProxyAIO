@@ -25,6 +25,10 @@ namespace WaveProxyAIO.Handlers {
 
         public static void AppendProxiesToFile(string[] proxyArray) => File.AppendAllLines(_proxyFilePath, proxyArray);
 
+        public static void WriteProxiesToFile(string[] proxyArray) => File.WriteAllLines(_proxyFilePath, proxyArray);
+
+        public static void GetProxiesFromFile() => File.ReadAllLines(_proxyFilePath).ToList();
+
         public static void ClearLogFile() => File.WriteAllText(_logFilePath, string.Empty);
 
         public static void AppendLogToFile(string logContent) => File.AppendAllTextAsync(_logFilePath, $"{DateTime.Now:HH:mm:ss}: {logContent}{Environment.NewLine}");
