@@ -32,13 +32,13 @@ namespace WaveProxyAIO {
                 Timeout = TimeSpan.FromMilliseconds(int.Parse(config["Setting:Timeout"] ?? "1000"))
             };
 
-            SemaphoreSlim semaphore = new(int.Parse(config["Setting:Threads"] ?? "10"));
+            SemaphoreSlim semaphore = new(int.Parse(config["Setting:Threads"] ?? "50"));
 
             services.AddSingleton<HttpClient>(client);
             services.AddSingleton<SemaphoreSlim>(semaphore);
             services.AddSingleton<IConfiguration>(config);
+            services.AddSingleton<IProxyParser, ProxyParser>();
             services.AddSingleton<GradientDesigner>();
-            services.AddSingleton<ProxyParser>();
             services.AddSingleton<ProxyScraper>();
             services.AddSingleton<MenuRenderer>();
             services.AddSingleton<MainMenuHandler>();

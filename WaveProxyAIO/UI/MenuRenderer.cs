@@ -44,12 +44,10 @@ namespace WaveProxyAIO.UI {
         //TODO: Implement Stats from ScraperStatus
         public void ShowScraperStatus() {
             lock (_lock) {
-
-
                 Console.WriteLine("[ URL Status ]");
                 Console.WriteLine($"Parsed      : {_scraperStats.ParsedUrls} / {_scraperStats.TotalUrls}");
-                Console.WriteLine($"Valid URLs  : {_scraperStats.ValidUrls} ({_scraperStats.ValidUrlsPercentage}%)");
-                Console.WriteLine($"Failed URLs : {_scraperStats.InvalidUrls}  ({_scraperStats.InvalidUrlsPercentage}%)");
+                Console.WriteLine($"Valid URLs  : {_scraperStats.ValidUrls} ({_scraperStats.ValidUrlsPercentage}%)    ");
+                Console.WriteLine($"Failed URLs : {_scraperStats.InvalidUrls} ({_scraperStats.InvalidUrlsPercentage}%)    ");
                 Console.WriteLine($"URLs/sec    : {_scraperStats.UrlsPerSecond}");
 
                 ConsoleTextFormatter.PrintEmptyLine(1);
@@ -57,14 +55,11 @@ namespace WaveProxyAIO.UI {
                 Console.WriteLine($"Total found : {_scraperStats.TotalProxies}");
                 Console.WriteLine($"Duplicates  : {_scraperStats.DuplicateCount}");
                 Console.WriteLine($"Avg/Site    : {_scraperStats.ProxiesPerSite}");
-                Console.WriteLine($"Proxies/sec : {_scraperStats.ProxiesPerSecond}");
 
                 ConsoleTextFormatter.PrintEmptyLine(1);
                 Console.WriteLine("[ Runtime ]");
                 Console.WriteLine($"Uptime      : {_scraperStats.Runtime:hh\\:mm\\:ss}");
-                Console.WriteLine($"ETA         : {_scraperStats.TimeRemaining:hh\\:mm\\:ss}");
                 Console.WriteLine($"Mem usage   : {_scraperStats.MemoryUsage} MB");
-
             }
         }
 

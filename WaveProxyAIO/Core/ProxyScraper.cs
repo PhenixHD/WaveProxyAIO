@@ -1,25 +1,42 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System.Collections.Concurrent;
 using WaveProxyAIO.Handlers;
+using WaveProxyAIO.Interfaces;
 using WaveProxyAIO.UI;
 
 namespace WaveProxyAIO.Core {
-    internal class ProxyScraper(ProxyParser parser, MenuRenderer menuRenderer, ScraperStats scraperStats) {
+    internal class ProxyScraper {
+        private readonly IProxyParser _parser;
+        private readonly MenuRenderer _menuRenderer;
+        private readonly ScraperStats _scraperStats;
+        private readonly SemaphoreSlim _semaphore;
+        private readonly IConfiguration _config;
+        private readonly bool _removeDupe;
+        private readonly object _lock = new object();
 
-        private readonly MenuRenderer _menuRenderer = menuRenderer ?? throw new ArgumentNullException(nameof(menuRenderer));
-        private readonly ProxyParser _parser = parser ?? throw new ArgumentNullException(nameof(parser));
-        private readonly ScraperStats _scraperStats = scraperStats ?? throw new ArgumentNullException(nameof(scraperStats));
+        public ProxyScraper(
+            IProxyParser parser,
+            MenuRenderer menuRenderer,
+            ScraperStats scraperStats,
+            SemaphoreSlim semaphore,
+            IConfiguration config) {
+            _parser = parser ?? throw new ArgumentNullException(nameof(parser));
+            _menuRenderer = menuRenderer ?? throw new ArgumentNullException(nameof(menuRenderer));
+            _scraperStats = scraperStats ?? throw new ArgumentNullException(nameof(scraperStats));
+            _semaphore = semaphore ?? throw new ArgumentNullException(nameof(semaphore));
+            _config = config ?? throw new ArgumentNullException(nameof(config));
+            _removeDupe = bool.Parse(_config["Setting:RemoveDupe"] ?? "true");
+        }
 
         public async Task ScrapeProxies() {
-
             EmptyAllFiles();
             _scraperStats.Reset();
+            _scraperStats._start = DateTime.Now;
 
-            if (!Handlers.FileHandler.CheckUrlFileExists()) {
 
+            if (!FileHandler.CheckUrlFileExists()) {
                 _menuRenderer.ShowUrlFileMissing();
-
-                Handlers.FileHandler.CreateUrlFile();
-
+                FileHandler.CreateUrlFile();
                 ConsoleTextFormatter.PrintEmptyLine(4);
                 Console.WriteLine("Press any key to return...");
                 Console.ReadKey();
@@ -28,19 +45,66 @@ namespace WaveProxyAIO.Core {
 
             _menuRenderer.ShowScraperConfig();
 
-            //TODO: Implement automatic duplicate removal - setting based on config
-            //FIX: Move return to Main menu text to bottom -> Own method in MenuRenderer
-            await _parser.ParseWebsite();
+            List<string> urls = FileHandler.GetUrlsFromFile();
+            var distinctProxies = new ConcurrentDictionary<string, byte>();
+            _scraperStats.TotalUrls = urls.Count;
 
+            var tasks = urls.Select(async url => {
+                await _semaphore.WaitAsync();
+                try {
+                    await ProcessUrlAsync(url, distinctProxies);
+                } finally {
+                    _semaphore.Release();
+                }
+            });
+
+            await Task.WhenAll(tasks);
+
+            if (_removeDupe) {
+                var uniqueProxies = distinctProxies.Keys.ToArray();
+                _scraperStats.DuplicateCount = _scraperStats.TotalProxies - uniqueProxies.Length;
+                FileHandler.WriteProxiesToFile(uniqueProxies);
+            }
+
+            _menuRenderer.ShowScraperStatus();
             ConsoleTextFormatter.PrintEmptyLine(2);
             Console.WriteLine("Press any key to return...");
             Console.ReadKey();
         }
 
-        private void EmptyAllFiles() {
-            Handlers.FileHandler.ClearLogFile();
-            Handlers.FileHandler.ClearProxyFile();
+        private async Task ProcessUrlAsync(string url, ConcurrentDictionary<string, byte> distinctProxies) {
+            try {
+                string[] scrapedProxies = await _parser.ParseWebsite(url);
+
+                _scraperStats.TotalProxies += scrapedProxies.Length;
+
+                if (_removeDupe) {
+                    foreach (var proxy in scrapedProxies) {
+                        distinctProxies.TryAdd(proxy, 0);
+                    }
+                } else {
+                    FileHandler.AppendProxiesToFile(scrapedProxies);
+                }
+
+                _scraperStats.ValidUrls++;
+            } catch (HttpRequestException e) {
+                FileHandler.AppendLogToFile($"HttpRequestException for URL {url}: {e.Message}");
+            } catch (Exception e) {
+                FileHandler.AppendLogToFile($"General exception for URL {url}: {e.Message}");
+            } finally {
+                lock (_lock) {
+                    int currentLeft = Console.CursorLeft;
+                    int currentTop = Console.CursorTop;
+                    _scraperStats.ParsedUrls++;
+                    _menuRenderer.ShowScraperStatus();
+                    Console.SetCursorPosition(currentLeft, currentTop);
+                }
+            }
         }
 
+        private void EmptyAllFiles() {
+            FileHandler.ClearLogFile();
+            FileHandler.ClearProxyFile();
+        }
     }
 }

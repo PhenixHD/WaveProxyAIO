@@ -13,11 +13,9 @@ namespace WaveProxyAIO.Core {
         public int TotalProxies { get; set; }
         public int DuplicateCount { get; set; }
         public int ProxiesPerSite => TotalProxies / ParsedUrls;
-        public int ProxiesPerSecond => (int)(TotalProxies / Runtime.TotalSeconds);
 
         public double MemoryUsage => Math.Round(Process.GetCurrentProcess().PrivateMemorySize64 / Math.Pow(1024, 2));
         public TimeSpan Runtime => DateTime.Now - _start;
-        public TimeSpan TimeRemaining => TimeSpan.FromSeconds((TotalUrls - ParsedUrls) * (Runtime.TotalSeconds / ParsedUrls));
         public DateTime _start = DateTime.Now;
 
         //TODO: Reset start time for Runtime calculation
