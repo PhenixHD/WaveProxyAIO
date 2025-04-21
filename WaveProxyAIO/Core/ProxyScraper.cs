@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using System.Collections.Concurrent;
 using WaveProxyAIO.Handlers;
 using WaveProxyAIO.Interfaces;
 using WaveProxyAIO.UI;
@@ -33,7 +32,6 @@ namespace WaveProxyAIO.Core {
             _scraperStats.Reset();
             _scraperStats._start = DateTime.Now;
 
-
             if (!FileHandler.CheckUrlFileExists()) {
                 _menuRenderer.ShowUrlFileMissing();
                 FileHandler.CreateUrlFile();
@@ -46,10 +44,10 @@ namespace WaveProxyAIO.Core {
             _menuRenderer.ShowScraperConfig();
 
             List<string> urls = FileHandler.GetUrlsFromFile();
-            var distinctProxies = new ConcurrentDictionary<string, byte>();
+            HashSet<string> distinctProxies = [];
             _scraperStats.TotalUrls = urls.Count;
 
-            var tasks = urls.Select(async url => {
+            IEnumerable<Task> tasks = urls.Select(async url => {
                 await _semaphore.WaitAsync();
                 try {
                     await ProcessUrlAsync(url, distinctProxies);
@@ -61,7 +59,7 @@ namespace WaveProxyAIO.Core {
             await Task.WhenAll(tasks);
 
             if (_removeDupe) {
-                var uniqueProxies = distinctProxies.Keys.ToArray();
+                string[] uniqueProxies = [.. distinctProxies];
                 _scraperStats.DuplicateCount = _scraperStats.TotalProxies - uniqueProxies.Length;
                 FileHandler.WriteProxiesToFile(uniqueProxies);
             }
@@ -72,7 +70,7 @@ namespace WaveProxyAIO.Core {
             Console.ReadKey();
         }
 
-        private async Task ProcessUrlAsync(string url, ConcurrentDictionary<string, byte> distinctProxies) {
+        private async Task ProcessUrlAsync(string url, HashSet<string> distinctProxies) {
             try {
                 string[] scrapedProxies = await _parser.ParseWebsite(url);
 
@@ -80,7 +78,7 @@ namespace WaveProxyAIO.Core {
 
                 if (_removeDupe) {
                     foreach (var proxy in scrapedProxies) {
-                        distinctProxies.TryAdd(proxy, 0);
+                        distinctProxies.Add(proxy);
                     }
                 } else {
                     FileHandler.AppendProxiesToFile(scrapedProxies);
