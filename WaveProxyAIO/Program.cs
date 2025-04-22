@@ -40,9 +40,11 @@ namespace WaveProxyAIO {
             services.AddSingleton<IProxyParser, ProxyParser>();
             services.AddSingleton<GradientDesigner>();
             services.AddSingleton<ProxyScraper>();
+            services.AddSingleton<ProxyChecker>();
             services.AddSingleton<MenuRenderer>();
             services.AddSingleton<MainMenuHandler>();
             services.AddSingleton<ScraperStats>();
+            services.AddSingleton<FileHandler>();
 
             var serviceProvider = services.BuildServiceProvider();
 

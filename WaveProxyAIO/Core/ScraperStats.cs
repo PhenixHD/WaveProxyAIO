@@ -2,7 +2,7 @@
 
 namespace WaveProxyAIO.Core {
     internal class ScraperStats {
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
         public int TotalUrls { get; set; }
         public int ParsedUrls { get; set; }
         public double ValidUrls { get; set; }

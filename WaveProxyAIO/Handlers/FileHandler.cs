@@ -2,14 +2,21 @@
 
 namespace WaveProxyAIO.Handlers {
     internal class FileHandler {
-        private static readonly string _currentDirectory = Path.GetDirectoryName(Environment.ProcessPath) ?? string.Empty;
-        private static readonly string _urlFilePath = Path.Combine(_currentDirectory, "URLs.txt");
-        private static readonly string _proxyFilePath = Path.Combine(_currentDirectory, "Proxies.txt");
-        private static readonly string _logFilePath = Path.Combine(_currentDirectory, "Logs.txt");
+        private readonly string _currentDirectory;
+        private readonly string _urlFilePath;
+        private readonly string _proxyFilePath;
+        private readonly string _logFilePath;
 
-        public static bool CheckUrlFileExists() => File.Exists(_urlFilePath) ? true : false;
+        public FileHandler() {
+            _currentDirectory = Path.GetDirectoryName(Environment.ProcessPath) ?? string.Empty;
+            _urlFilePath = Path.Combine(_currentDirectory, "URLs.txt");
+            _proxyFilePath = Path.Combine(_currentDirectory, "Proxies.txt");
+            _logFilePath = Path.Combine(_currentDirectory, "Logs.txt");
+        }
 
-        public static void CreateUrlFile() {
+        public bool CheckUrlFileExists() => File.Exists(_urlFilePath) ? true : false;
+
+        public void CreateUrlFile() {
             Process.Start(new ProcessStartInfo {
                 FileName = "explorer.exe",
                 Arguments = _currentDirectory,
@@ -19,18 +26,18 @@ namespace WaveProxyAIO.Handlers {
             File.Create(_urlFilePath).Dispose();
         }
 
-        public static List<string> GetUrlsFromFile() => File.ReadAllLines(_urlFilePath).ToList();
+        public List<string> GetUrlsFromFile() => [.. File.ReadAllLines(_urlFilePath)];
 
-        public static void ClearProxyFile() => File.WriteAllText(_proxyFilePath, string.Empty);
+        public void ClearProxyFile() => File.WriteAllText(_proxyFilePath, string.Empty);
 
-        public static void AppendProxiesToFile(string[] proxyArray) => File.AppendAllLines(_proxyFilePath, proxyArray);
+        public void AppendProxiesToFile(string[] proxyArray) => File.AppendAllLines(_proxyFilePath, proxyArray);
 
-        public static void WriteProxiesToFile(string[] proxyArray) => File.WriteAllLines(_proxyFilePath, proxyArray);
+        public void WriteProxiesToFile(string[] proxyArray) => File.WriteAllLines(_proxyFilePath, proxyArray);
 
-        public static void GetProxiesFromFile() => File.ReadAllLines(_proxyFilePath).ToList();
+        public List<string> GetProxiesFromFile() => [.. File.ReadAllLines(_proxyFilePath)];
 
-        public static void ClearLogFile() => File.WriteAllText(_logFilePath, string.Empty);
+        public void ClearLogFile() => File.WriteAllText(_logFilePath, string.Empty);
 
-        public static void AppendLogToFile(string logContent) => File.AppendAllTextAsync(_logFilePath, $"{DateTime.Now:HH:mm:ss}: {logContent}{Environment.NewLine}");
+        public void AppendLogToFile(string logContent) => File.AppendAllTextAsync(_logFilePath, $"{DateTime.Now:HH:mm:ss}: {logContent}{Environment.NewLine}");
     }
 }

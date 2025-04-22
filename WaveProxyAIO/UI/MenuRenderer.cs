@@ -42,7 +42,13 @@ namespace WaveProxyAIO.UI {
             ConsoleTextFormatter.PrintEmptyLine(2);
         }
 
-        //TODO: Implement Stats from ScraperStatus
+        public void ShowCheckerMenu() {
+            Console.Clear();
+
+            _gradientDesigner.DisplayGradient(AsciiDesigner.CheckerAsciiArt(), true);
+            ConsoleTextFormatter.PrintEmptyLine(2);
+        }
+
         public void ShowScraperStatus() {
             lock (_lock) {
                 Console.WriteLine("[ URL Status ]");

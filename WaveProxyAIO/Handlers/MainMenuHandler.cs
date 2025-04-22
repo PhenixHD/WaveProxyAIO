@@ -2,10 +2,11 @@
 using WaveProxyAIO.UI;
 
 namespace WaveProxyAIO.Handlers {
-    internal class MainMenuHandler(ProxyScraper scraper, MenuRenderer menuRenderer) {
+    internal class MainMenuHandler(ProxyScraper scraper, ProxyChecker checker, MenuRenderer menuRenderer) {
 
         private readonly MenuRenderer _menuRenderer = menuRenderer ?? throw new ArgumentNullException(nameof(menuRenderer));
         private readonly ProxyScraper _scraper = scraper ?? throw new ArgumentNullException(nameof(scraper));
+        private readonly ProxyChecker _checker = checker ?? throw new ArgumentNullException(nameof(checker));
 
         public async Task HandleUserInput() {
             while (true) {
@@ -18,8 +19,8 @@ namespace WaveProxyAIO.Handlers {
                         return;
 
                     case '2':
-                        //Placeholder - Call Checker Method once implemented + clear console
-                        Console.WriteLine("");
+                        _menuRenderer.ShowCheckerMenu();
+                        await _checker.CheckProxies();
                         return;
 
                     case '3':
