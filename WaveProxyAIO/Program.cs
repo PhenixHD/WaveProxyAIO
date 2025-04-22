@@ -38,7 +38,7 @@ namespace WaveProxyAIO {
             services.AddSingleton<SemaphoreSlim>(semaphore);
             services.AddSingleton<IConfiguration>(config);
             services.AddSingleton<IProxyParser, ProxyParser>();
-            services.AddSingleton<IProxyTester, ProxyTester>();
+            services.AddSingleton<IProxyTester, Socks5ProxyHandler>();
             services.AddSingleton<GradientDesigner>();
             services.AddSingleton<ProxyScraper>();
             services.AddSingleton<ProxyChecker>();

@@ -6,12 +6,14 @@ namespace WaveProxyAIO.Handlers {
         private readonly string _urlFilePath;
         private readonly string _proxyFilePath;
         private readonly string _logFilePath;
+        private readonly string _checkedProxiesFilePath;
 
         public FileHandler() {
             _currentDirectory = Path.GetDirectoryName(Environment.ProcessPath) ?? string.Empty;
             _urlFilePath = Path.Combine(_currentDirectory, "URLs.txt");
             _proxyFilePath = Path.Combine(_currentDirectory, "Proxies.txt");
             _logFilePath = Path.Combine(_currentDirectory, "Logs.txt");
+            _checkedProxiesFilePath = Path.Combine(_currentDirectory, "CheckedProxies.txt");
         }
 
         public bool CheckUrlFileExists() => File.Exists(_urlFilePath) ? true : false;
@@ -39,5 +41,9 @@ namespace WaveProxyAIO.Handlers {
         public void ClearLogFile() => File.WriteAllText(_logFilePath, string.Empty);
 
         public void AppendLogToFile(string logContent) => File.AppendAllTextAsync(_logFilePath, $"{DateTime.Now:HH:mm:ss}: {logContent}{Environment.NewLine}");
+
+        public void AppendCheckedProxiesToFile(string[] proxyArray) => File.AppendAllLines(_checkedProxiesFilePath, proxyArray);
+
+        public void WriteCheckedProxiesToFile(string[] proxyArray) => File.WriteAllLines(_checkedProxiesFilePath, proxyArray);
     }
 }
