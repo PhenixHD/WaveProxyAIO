@@ -2,14 +2,15 @@
 using WaveProxyAIO.Core;
 
 namespace WaveProxyAIO.UI {
-    internal class MenuRenderer(GradientDesigner gradientDesigner, ScraperStats scraperStats, IConfiguration config) {
+    internal class MenuRenderer(GradientDesigner gradientDesigner, ScraperStats scraperStats, CheckerStats checkerStats, IConfiguration config) {
 
         private readonly GradientDesigner _gradientDesigner = gradientDesigner ?? throw new ArgumentNullException(nameof(gradientDesigner));
         private readonly ScraperStats _scraperStats = scraperStats ?? throw new ArgumentNullException(nameof(scraperStats));
+        private readonly CheckerStats _checkerStats = checkerStats ?? throw new ArgumentNullException(nameof(checkerStats));
 
         private readonly bool _removeDuplicateProxies = bool.Parse(config["Setting:RemoveDupe"] ?? "true");
         private readonly bool _checkProxiesAfterScraping = bool.Parse(config["Setting:CheckAfterScrape"] ?? "false");
-        private readonly string _timeout = config["Setting:Timeout"] ?? "3000";
+        private readonly string _timeout = config["Setting:WebsiteTimeout"] ?? "3000";
         private readonly string _threads = config["Setting:Threads"] ?? "20";
         private readonly string _retries = config["Setting:Retries"] ?? "2";
 
@@ -68,6 +69,20 @@ namespace WaveProxyAIO.UI {
                 Console.WriteLine("[ Runtime ]");
                 Console.WriteLine($"Uptime      : {_scraperStats.Runtime:hh\\:mm\\:ss}  ");
                 Console.WriteLine($"Mem usage   : {_scraperStats.MemoryUsage} MB  ");
+            }
+        }
+
+        public void ShowCheckerStatus() {
+            lock (_lock) {
+                Console.WriteLine("[ Proxy Stats ]");
+                Console.WriteLine($"Progress    : {_checkerStats.ParsedProxies} / {_checkerStats.TotalProxies}  ");
+                Console.WriteLine($"Valid       : {_checkerStats.ValidProxies} ({_checkerStats.ValidProxiesPercentage}%)    ");
+                Console.WriteLine($"Invalid     : {_checkerStats.InvalidProxies} ({_checkerStats.InvalidProxiesPercentage}%)    ");
+
+                ConsoleTextFormatter.PrintEmptyLine(1);
+                Console.WriteLine("[ Runtime ]");
+                Console.WriteLine($"Uptime      : {_checkerStats.Runtime:hh\\:mm\\:ss}  ");
+                Console.WriteLine($"Mem usage   : {_checkerStats.MemoryUsage} MB  ");
             }
         }
 

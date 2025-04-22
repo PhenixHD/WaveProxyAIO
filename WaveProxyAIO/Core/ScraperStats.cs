@@ -14,7 +14,9 @@ namespace WaveProxyAIO.Core {
         public double ValidUrlsPercentage => ParsedUrls > 0
             ? Math.Round(ValidUrls / ParsedUrls * 100)
             : 0;
-        public double InvalidUrlsPercentage => Math.Round(InvalidUrls / ParsedUrls * 100);
+        public double InvalidUrlsPercentage => ParsedUrls > 0
+            ? Math.Round(InvalidUrls / ParsedUrls * 100)
+            : 0;
 
         public int TotalProxies { get; set; }
         public int DuplicateCount { get; set; }

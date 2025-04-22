@@ -29,7 +29,7 @@ namespace WaveProxyAIO {
             });
 
             HttpClient client = new() {
-                Timeout = TimeSpan.FromMilliseconds(int.Parse(config["Setting:Timeout"] ?? "1000"))
+                Timeout = TimeSpan.FromMilliseconds(int.Parse(config["Setting:WebsiteTimeout"] ?? "3000"))
             };
 
             SemaphoreSlim semaphore = new(int.Parse(config["Setting:Threads"] ?? "50"));
@@ -38,12 +38,14 @@ namespace WaveProxyAIO {
             services.AddSingleton<SemaphoreSlim>(semaphore);
             services.AddSingleton<IConfiguration>(config);
             services.AddSingleton<IProxyParser, ProxyParser>();
+            services.AddSingleton<IProxyTester, ProxyTester>();
             services.AddSingleton<GradientDesigner>();
             services.AddSingleton<ProxyScraper>();
             services.AddSingleton<ProxyChecker>();
             services.AddSingleton<MenuRenderer>();
             services.AddSingleton<MainMenuHandler>();
             services.AddSingleton<ScraperStats>();
+            services.AddSingleton<CheckerStats>();
             services.AddSingleton<FileHandler>();
 
             var serviceProvider = services.BuildServiceProvider();

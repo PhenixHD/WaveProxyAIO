@@ -1,24 +1,58 @@
-﻿using Leaf.xNet;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
+using System.Diagnostics;
+using WaveProxyAIO.Handlers;
+using WaveProxyAIO.Interfaces;
+using WaveProxyAIO.UI;
 
 namespace WaveProxyAIO.Core {
-    internal class ProxyChecker(IConfiguration config) {
+    internal class ProxyChecker {
+        private readonly IProxyTester _proxyTester;
+        private readonly FileHandler _filehandler;
+        private readonly SemaphoreSlim _semaphore;
+        private readonly MenuRenderer _menuRenderer;
+        private readonly CheckerStats _checkerStats;
+        private readonly string _host;
+        private readonly int _timeout;
+        private readonly object _lock = new();
 
-        public async Task CheckProxies() {
-
-            await TestProxy();
+        public ProxyChecker(IProxyTester proxyTester, IConfiguration config, SemaphoreSlim semaphore, FileHandler filehandler, MenuRenderer menuRenderer, CheckerStats checkerStats) {
+            _proxyTester = proxyTester ?? throw new ArgumentNullException(nameof(proxyTester));
+            _filehandler = filehandler ?? throw new ArgumentNullException(nameof(filehandler));
+            _semaphore = semaphore ?? throw new ArgumentNullException(nameof(semaphore));
+            _menuRenderer = menuRenderer ?? throw new ArgumentNullException(nameof(menuRenderer));
+            _checkerStats = checkerStats ?? throw new ArgumentNullException(nameof(checkerStats));
+            _host = config["Setting:CheckProxySite"] ?? "https://google.com";
+            _timeout = int.Parse(config["Setting:Timeout"] ?? "3000");
         }
 
-        private async Task TestProxy() {
-            HttpProxyClient proxy = HttpProxyClient.Parse("127.0.0.1:8080");
+        public async Task CheckProxies() {
+            List<string> proxies = _filehandler.GetProxiesFromFile();
+            _checkerStats.TotalProxies = proxies.Count;
 
-            using HttpRequest request = new();
-            request.Proxy = proxy;
-            request.ConnectTimeout = 5000;
-            request.ReadWriteTimeout = 5000;
+            IEnumerable<Task> tasks = proxies.Select(async proxy => {
+                await _semaphore.WaitAsync();
+                try {
+                    bool isValid = await _proxyTester.TestProxyAsync(proxy, _host, _timeout);
+                    lock (_lock) {
+                        if (isValid) {
+                            _checkerStats.ValidProxies++;
+                        } else {
+                            _checkerStats.InvalidProxies++;
+                        }
+                        int currentLeft = Console.CursorLeft;
+                        int currentTop = Console.CursorTop;
+                        _checkerStats.ParsedProxies++;
+                        _menuRenderer.ShowCheckerStatus();
+                        Console.SetCursorPosition(currentLeft, currentTop);
+                    }
+                } finally {
+                    _semaphore.Release();
+                }
+            });
 
-            string response = request.Get("https://api.ipify.org").ToString();
-            Console.WriteLine("Proxy IP: " + response);
+            await Task.WhenAll(tasks);
+
+            Console.ReadKey();
         }
     }
 }
