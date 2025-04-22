@@ -55,7 +55,7 @@ namespace WaveProxyAIO.UI {
             return [
                     @"This is a learning project",
                     @"",
-                    @"Wave Proxy AIO",
+                    @"Wave Proxy AIO [C#]",
                     @"Made with <3 by PhenixHD",
                     @"Github - https://github.com/PhenixHD"
                 ];

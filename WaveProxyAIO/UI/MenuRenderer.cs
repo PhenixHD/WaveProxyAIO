@@ -11,6 +11,7 @@ namespace WaveProxyAIO.UI {
         private readonly bool _checkProxiesAfterScraping = bool.Parse(config["Setting:CheckAfterScrape"] ?? "false");
         private readonly string _timeout = config["Setting:Timeout"] ?? "3000";
         private readonly string _threads = config["Setting:Threads"] ?? "20";
+        private readonly string _retries = config["Setting:Retries"] ?? "2";
 
         private readonly object _lock = new();
 
@@ -45,27 +46,32 @@ namespace WaveProxyAIO.UI {
         public void ShowScraperStatus() {
             lock (_lock) {
                 Console.WriteLine("[ URL Status ]");
-                Console.WriteLine($"Parsed      : {_scraperStats.ParsedUrls} / {_scraperStats.TotalUrls}");
+                Console.WriteLine($"Parsed      : {_scraperStats.ParsedUrls} / {_scraperStats.TotalUrls}  ");
                 Console.WriteLine($"Valid URLs  : {_scraperStats.ValidUrls} ({_scraperStats.ValidUrlsPercentage}%)    ");
                 Console.WriteLine($"Failed URLs : {_scraperStats.InvalidUrls} ({_scraperStats.InvalidUrlsPercentage}%)    ");
-                Console.WriteLine($"URLs/sec    : {_scraperStats.UrlsPerSecond}");
+                Console.WriteLine($"Retries     : {_scraperStats.TotalRetries}  ");
+                Console.WriteLine($"URLs/sec    : {_scraperStats.UrlsPerSecond}  ");
 
                 ConsoleTextFormatter.PrintEmptyLine(1);
                 Console.WriteLine("[ Proxy Stats ]");
-                Console.WriteLine($"Total found : {_scraperStats.TotalProxies}");
-                Console.WriteLine($"Duplicates  : {_scraperStats.DuplicateCount}");
-                Console.WriteLine($"Avg/Site    : {_scraperStats.ProxiesPerSite}");
+                Console.WriteLine($"Total found : {_scraperStats.TotalProxies}  ");
+                Console.WriteLine($"Duplicates  : {_scraperStats.DuplicateCount}  ");
+                Console.WriteLine($"Avg/Site    : {_scraperStats.ProxiesPerSite}  ");
 
                 ConsoleTextFormatter.PrintEmptyLine(1);
                 Console.WriteLine("[ Runtime ]");
-                Console.WriteLine($"Uptime      : {_scraperStats.Runtime:hh\\:mm\\:ss}");
-                Console.WriteLine($"Mem usage   : {_scraperStats.MemoryUsage} MB");
+                Console.WriteLine($"Uptime      : {_scraperStats.Runtime:hh\\:mm\\:ss}  ");
+                Console.WriteLine($"Mem usage   : {_scraperStats.MemoryUsage} MB  ");
             }
         }
 
         public void ShowScraperConfig() {
             string[] scraperOptions = [
-                $"De-Dupe [{_removeDuplicateProxies}] | Auto-Check [{_checkProxiesAfterScraping}] | Timeout [{_timeout}ms] | Threads [{_threads}]"
+                $"De-Dupe [{_removeDuplicateProxies}] | " +
+                $"Auto-Check [{_checkProxiesAfterScraping}] | " +
+                $"Timeout [{_timeout}ms] | " +
+                $"Threads [{_threads}] | " +
+                $"Retries [{_retries}]"
             ];
 
             _gradientDesigner.DisplayGradient(scraperOptions, true);

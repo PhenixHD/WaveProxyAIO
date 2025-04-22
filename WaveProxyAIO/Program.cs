@@ -51,6 +51,7 @@ namespace WaveProxyAIO {
 
             // Main Logic
             while (true) {
+                Console.Clear();
                 menuRenderer.ShowMainMenu();
                 await mainMenuHandler.HandleUserInput();
             }
