@@ -22,10 +22,16 @@ namespace WaveProxyAIO {
             IServiceCollection services = new ServiceCollection();
 
             string? gradientType = config["GradientType"];
-
             services.AddSingleton<IGradientStrategy>(provider => gradientType switch {
                 "Horizontal" => new HorizontalGradientStrategy(),
                 _ => new VerticalGradientStrategy()
+            });
+
+            string? proxyType = config["Setting:ProxyType"];
+            services.AddSingleton<IProxyTester>(tester => proxyType switch {
+                "SOCKS5" => new Socks5ProxyHandler(),
+                "SOCKS4" => new Socks4ProxyHandler(),
+                _ => new HttpProxyHandler()
             });
 
             HttpClient client = new() {
@@ -38,7 +44,6 @@ namespace WaveProxyAIO {
             services.AddSingleton<SemaphoreSlim>(semaphore);
             services.AddSingleton<IConfiguration>(config);
             services.AddSingleton<IProxyParser, ProxyParser>();
-            services.AddSingleton<IProxyTester, Socks5ProxyHandler>();
             services.AddSingleton<GradientDesigner>();
             services.AddSingleton<ProxyScraper>();
             services.AddSingleton<ProxyChecker>();

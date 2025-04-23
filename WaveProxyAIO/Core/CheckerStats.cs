@@ -18,6 +18,10 @@ namespace WaveProxyAIO.Core {
             ? Math.Round((double)ValidProxies / ParsedProxies * 100)
             : 0;
 
+        public double ProxiesPerSecond => Runtime.TotalSeconds > 0
+       ? Math.Round(ParsedProxies / Runtime.TotalSeconds)
+       : 0;
+
         public double MemoryUsage => Math.Round(Process.GetCurrentProcess().PrivateMemorySize64 / Math.Pow(1024, 2));
         public TimeSpan Runtime => DateTime.Now - _start;
         public DateTime _start = DateTime.Now;
@@ -25,6 +29,9 @@ namespace WaveProxyAIO.Core {
         public void Reset() {
             lock (_lock) {
                 TotalProxies = 0;
+                ParsedProxies = 0;
+                ValidProxies = 0;
+                InvalidProxies = 0;
                 _start = DateTime.Now;
             }
         }
