@@ -17,7 +17,7 @@ namespace WaveProxyAIO.Handlers {
             try {
                 var res = await client.GetAsync(host);
                 return res.IsSuccessStatusCode;
-            } catch {
+            } catch (Exception) {
                 return false;
             }
         }

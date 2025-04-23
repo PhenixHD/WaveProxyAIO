@@ -42,8 +42,8 @@ namespace WaveProxyAIO.Handlers {
 
         public void AppendLogToFile(string logContent) => File.AppendAllTextAsync(_logFilePath, $"{DateTime.Now:HH:mm:ss}: {logContent}{Environment.NewLine}");
 
-        public void AppendCheckedProxiesToFile(string[] proxyArray) => File.AppendAllLines(_checkedProxiesFilePath, proxyArray);
+        public void AppendCheckedProxyToFile(string proxy) => File.AppendAllTextAsync(_checkedProxiesFilePath, $"{proxy}{Environment.NewLine}");
 
-        public void WriteCheckedProxiesToFile(string[] proxyArray) => File.WriteAllLines(_checkedProxiesFilePath, proxyArray);
+        public void ClearCheckedProxyFile() => File.WriteAllText(_checkedProxiesFilePath, string.Empty);
     }
 }

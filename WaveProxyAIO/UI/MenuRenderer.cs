@@ -9,10 +9,11 @@ namespace WaveProxyAIO.UI {
         private readonly CheckerStats _checkerStats = checkerStats ?? throw new ArgumentNullException(nameof(checkerStats));
 
         private readonly bool _removeDuplicateProxies = bool.Parse(config["Setting:RemoveDupe"] ?? "true");
-        private readonly bool _checkProxiesAfterScraping = bool.Parse(config["Setting:CheckAfterScrape"] ?? "false");
-        private readonly string _timeout = config["Setting:WebsiteTimeout"] ?? "3000";
-        private readonly string _threads = config["Setting:Threads"] ?? "20";
-        private readonly string _retries = config["Setting:Retries"] ?? "2";
+        private readonly string _websiteTimeout = config["Setting:WebsiteTimeout"] ?? "3000";
+        private readonly string _proxyTimeout = config["Setting:ProxyTimeout"] ?? "3000";
+        private readonly string _threads = config["Setting:Threads"] ?? "50";
+        private readonly string _websiteRetries = config["Setting:WebsiteRetries"] ?? "2";
+        private readonly string _proxyRetries = config["Setting:ProxyRetries"] ?? "2";
 
         private readonly object _lock = new();
 
@@ -78,6 +79,8 @@ namespace WaveProxyAIO.UI {
                 Console.WriteLine($"Progress    : {_checkerStats.ParsedProxies} / {_checkerStats.TotalProxies}  ");
                 Console.WriteLine($"Valid       : {_checkerStats.ValidProxies} ({_checkerStats.ValidProxiesPercentage}%)    ");
                 Console.WriteLine($"Invalid     : {_checkerStats.InvalidProxies} ({_checkerStats.InvalidProxiesPercentage}%)    ");
+                Console.WriteLine($"Retries     : {_checkerStats.TotalRetries}  ");
+                Console.WriteLine($"Proxies/sec : {_checkerStats.ProxiesPerSecond}  ");
 
                 ConsoleTextFormatter.PrintEmptyLine(1);
                 Console.WriteLine("[ Runtime ]");
@@ -89,13 +92,24 @@ namespace WaveProxyAIO.UI {
         public void ShowScraperConfig() {
             string[] scraperOptions = [
                 $"De-Dupe [{_removeDuplicateProxies}] | " +
-                $"Auto-Check [{_checkProxiesAfterScraping}] | " +
-                $"Timeout [{_timeout}ms] | " +
+                $"Timeout [{_websiteTimeout}ms] | " +
                 $"Threads [{_threads}] | " +
-                $"Retries [{_retries}]"
+                $"Retries [{_websiteRetries}]"
             ];
 
             _gradientDesigner.DisplayGradient(scraperOptions, true);
+            ConsoleTextFormatter.PrintEmptyLine(2);
+        }
+
+        public void ShowCheckerConfig() {
+            string[] checkerOptions = [
+                $"De-Dupe [{_removeDuplicateProxies}] | " +
+                $"Timeout [{_proxyTimeout}ms] | " +
+                $"Threads [{_threads}] | " +
+                $"Retries [{_proxyRetries}]"
+            ];
+
+            _gradientDesigner.DisplayGradient(checkerOptions, true);
             ConsoleTextFormatter.PrintEmptyLine(2);
         }
 

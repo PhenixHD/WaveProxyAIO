@@ -13,38 +13,73 @@ namespace WaveProxyAIO.Core {
         private readonly CheckerStats _checkerStats = checkerStats ?? throw new ArgumentNullException(nameof(checkerStats));
         private readonly string _host = config["Setting:CheckProxySite"] ?? "https://google.com";
         private readonly int _timeout = int.Parse(config["Setting:ProxyTimeout"] ?? "3000");
+        private readonly int _maxRetries = int.Parse(config["Setting:ProxyRetries"] ?? "2");
         private readonly object _lock = new();
 
         public async Task CheckProxies() {
+            _filehandler.ClearCheckedProxyFile();
+            _checkerStats.Reset();
+
+            _menuRenderer.ShowCheckerConfig();
+
             List<string> proxies = _filehandler.GetProxiesFromFile();
             _checkerStats.TotalProxies = proxies.Count;
 
+            await ProcessAllProxy(proxies);
+            FinalizeChecking();
+        }
+
+        private async Task ProcessAllProxy(List<string> proxies) {
             IEnumerable<Task> tasks = proxies.Select(async proxy => {
                 await _semaphore.WaitAsync();
-                string[] checkedProxies = [];
                 try {
-                    bool isValid = await _proxyTester.TestProxyAsync(proxy, _host, _timeout);
+                    await ProcessProxy(proxy);
+                } finally {
                     lock (_lock) {
-                        if (isValid) {
-                            _checkerStats.ValidProxies++;
-                            _filehandler.AppendCheckedProxiesToFile(checkedProxies);
-                        } else {
-                            _checkerStats.InvalidProxies++;
-                        }
                         int currentLeft = Console.CursorLeft;
                         int currentTop = Console.CursorTop;
                         _checkerStats.ParsedProxies++;
                         _menuRenderer.ShowCheckerStatus();
                         Console.SetCursorPosition(currentLeft, currentTop);
                     }
-                } finally {
                     _semaphore.Release();
                 }
             });
 
             await Task.WhenAll(tasks);
+        }
 
+        private void FinalizeChecking() {
+            _menuRenderer.ShowCheckerStatus();
+            ConsoleTextFormatter.PrintEmptyLine(2);
+            Console.WriteLine("Press any key to return...");
             Console.ReadKey();
         }
+
+        private async Task ProcessProxy(string proxy) {
+            int attempt = 0;
+
+            while (attempt < _maxRetries) {
+                try {
+                    attempt++;
+                    bool isValid = await _proxyTester.TestProxyAsync(proxy, _host, _timeout);
+
+                    if (isValid) {
+                        _checkerStats.ValidProxies++;
+                        _filehandler.AppendCheckedProxyToFile(proxy);
+                        return;
+                    }
+                } finally {
+                    _checkerStats.TotalRetries++;
+                }
+
+                if (attempt >= _maxRetries) {
+                    lock (_lock) {
+                        _checkerStats.InvalidProxies++;
+                    }
+                }
+            }
+        }
+
     }
 }

@@ -5,7 +5,7 @@ namespace WaveProxyAIO.Handlers {
     internal class HttpProxyHandler : IProxyTester {
         public async Task<bool> TestProxyAsync(string proxy, string host, int timeout) {
             SocketsHttpHandler handler = new() {
-                Proxy = new WebProxy($"https://{proxy}"),
+                Proxy = new WebProxy($"http://{proxy}"),
                 ConnectTimeout = TimeSpan.FromMilliseconds(timeout),
                 UseProxy = true
             };
@@ -17,7 +17,7 @@ namespace WaveProxyAIO.Handlers {
             try {
                 var res = await client.GetAsync(host);
                 return res.IsSuccessStatusCode;
-            } catch {
+            } catch (Exception) {
                 return false;
             }
         }

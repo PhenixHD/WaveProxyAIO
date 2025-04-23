@@ -11,7 +11,7 @@ namespace WaveProxyAIO.Core {
         private readonly SemaphoreSlim _semaphore = semaphore ?? throw new ArgumentNullException(nameof(semaphore));
         private readonly FileHandler _filehandler = filehandler ?? throw new ArgumentException(nameof(filehandler));
         private readonly bool _removeDupe = bool.Parse(config["Setting:RemoveDupe"] ?? "true");
-        private readonly int _maxRetries = int.Parse(config["Setting:Retries"] ?? "2");
+        private readonly int _maxRetries = int.Parse(config["Setting:WebsiteRetries"] ?? "2");
         private readonly object _lock = new();
 
         public async Task ScrapeProxies() {
