@@ -17,8 +17,7 @@ namespace WaveProxyAIO.Core {
         private readonly object _lock = new();
 
         public async Task CheckProxies() {
-            _filehandler.ClearCheckedProxyFile();
-            _checkerStats.Reset();
+            if (!PrepareChecking()) return;
 
             _menuRenderer.ShowCheckerConfig();
 
@@ -80,6 +79,21 @@ namespace WaveProxyAIO.Core {
 
                 _checkerStats.TotalRetries++;
             }
+        }
+
+        private bool PrepareChecking() {
+            _checkerStats.Reset();
+
+            if (!_filehandler.CheckProxyFileExists()) {
+                _menuRenderer.ShowProxyFileMissing();
+                _filehandler.CreateProxyFile();
+                ConsoleTextFormatter.PrintEmptyLine(4);
+                Console.WriteLine("Press any key to return...");
+                Console.ReadKey();
+                return false;
+            }
+
+            return true;
         }
 
     }

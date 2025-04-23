@@ -120,5 +120,14 @@ namespace WaveProxyAIO.UI {
             Console.WriteLine("Please add URLs to URLs.txt..");
             Console.ResetColor();
         }
+
+        public void ShowProxyFileMissing() {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("No Proxies.txt found in running directory!");
+            Console.WriteLine("Opening running directory..");
+            Console.WriteLine("Please add Proxies to Proxies.txt..");
+            Console.ResetColor();
+        }
+
     }
 }

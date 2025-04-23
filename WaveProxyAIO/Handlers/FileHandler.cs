@@ -28,6 +28,16 @@ namespace WaveProxyAIO.Handlers {
             File.Create(_urlFilePath).Dispose();
         }
 
+        public void CreateProxyFile() {
+            Process.Start(new ProcessStartInfo {
+                FileName = "explorer.exe",
+                Arguments = _currentDirectory,
+                UseShellExecute = true
+            });
+
+            File.Create(_proxyFilePath).Dispose();
+        }
+
         public List<string> GetUrlsFromFile() => [.. File.ReadAllLines(_urlFilePath)];
 
         public void ClearProxyFile() => File.WriteAllText(_proxyFilePath, string.Empty);
@@ -45,5 +55,8 @@ namespace WaveProxyAIO.Handlers {
         public void AppendCheckedProxyToFile(string proxy) => File.AppendAllTextAsync(_checkedProxiesFilePath, $"{proxy}{Environment.NewLine}");
 
         public void ClearCheckedProxyFile() => File.WriteAllText(_checkedProxiesFilePath, string.Empty);
+
+        public bool CheckProxyFileExists() => File.Exists(_proxyFilePath) ? true : false;
+
     }
 }
