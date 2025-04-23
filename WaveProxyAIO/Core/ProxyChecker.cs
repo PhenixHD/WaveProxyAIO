@@ -83,6 +83,7 @@ namespace WaveProxyAIO.Core {
 
         private bool PrepareChecking() {
             _checkerStats.Reset();
+            _filehandler.ClearCheckedProxyFile();
 
             if (!_filehandler.CheckProxyFileExists()) {
                 _menuRenderer.ShowProxyFileMissing();

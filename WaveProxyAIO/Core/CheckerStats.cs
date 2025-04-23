@@ -32,6 +32,7 @@ namespace WaveProxyAIO.Core {
                 ParsedProxies = 0;
                 ValidProxies = 0;
                 InvalidProxies = 0;
+                TotalRetries = 0;
                 _start = DateTime.Now;
             }
         }
