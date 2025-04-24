@@ -1,19 +1,18 @@
-﻿using Microsoft.Extensions.Configuration;
-using WaveProxyAIO.Core;
+﻿using WaveProxyAIO.Configurations;
 
 namespace WaveProxyAIO.UI {
-    internal class MenuRenderer(GradientDesigner gradientDesigner, ScraperStats scraperStats, CheckerStats checkerStats, IConfiguration config) {
+    internal class MenuRenderer(GradientDesigner gradientDesigner, ScraperStats scraperStats, CheckerStats checkerStats, SettingConfigurator settingConfigurator) {
 
         private readonly GradientDesigner _gradientDesigner = gradientDesigner ?? throw new ArgumentNullException(nameof(gradientDesigner));
         private readonly ScraperStats _scraperStats = scraperStats ?? throw new ArgumentNullException(nameof(scraperStats));
         private readonly CheckerStats _checkerStats = checkerStats ?? throw new ArgumentNullException(nameof(checkerStats));
 
-        private readonly bool _removeDuplicateProxies = bool.Parse(config["Setting:RemoveDupe"] ?? "true");
-        private readonly string _websiteTimeout = config["Setting:WebsiteTimeout"] ?? "3000";
-        private readonly string _proxyTimeout = config["Setting:ProxyTimeout"] ?? "3000";
-        private readonly string _threads = config["Setting:Threads"] ?? "50";
-        private readonly string _websiteRetries = config["Setting:WebsiteRetries"] ?? "2";
-        private readonly string _proxyRetries = config["Setting:ProxyRetries"] ?? "2";
+        private readonly int _threads = settingConfigurator.Threads;
+        private readonly int _websiteTimeout = settingConfigurator.WebsiteTimeout;
+        private readonly int _websiteRetries = settingConfigurator.WebsiteRetries;
+        private readonly int _proxyTimeout = settingConfigurator.ProxyTimeout;
+        private readonly int _proxyRetries = settingConfigurator.ProxyRetries;
+        private readonly bool _removeDuplicateProxies = settingConfigurator.RemoveDupe;
 
         private readonly object _lock = new();
 

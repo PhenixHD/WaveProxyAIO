@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace WaveProxyAIO.Core {
+namespace WaveProxyAIO.Configurations {
     internal class CheckerStats {
         private readonly object _lock = new();
 

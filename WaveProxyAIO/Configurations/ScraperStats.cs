@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace WaveProxyAIO.Core {
+namespace WaveProxyAIO.Configurations {
     internal class ScraperStats {
         private readonly object _lock = new();
         public int TotalUrls { get; set; }
@@ -20,7 +20,7 @@ namespace WaveProxyAIO.Core {
 
         public int TotalProxies { get; set; }
         public int DuplicateCount { get; set; }
-        public double ProxiesPerSite => TotalProxies / ParsedUrls;
+        public double ProxiesPerSite => ParsedUrls > 0 ? TotalProxies / ParsedUrls : 0;
 
         public double MemoryUsage => Math.Round(Process.GetCurrentProcess().PrivateMemorySize64 / Math.Pow(1024, 2));
         public TimeSpan Runtime => DateTime.Now - _start;

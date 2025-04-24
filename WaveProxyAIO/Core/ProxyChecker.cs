@@ -1,18 +1,18 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using WaveProxyAIO.Configurations;
 using WaveProxyAIO.Handlers;
 using WaveProxyAIO.Interfaces;
 using WaveProxyAIO.UI;
 
 namespace WaveProxyAIO.Core {
-    internal class ProxyChecker(IProxyTester proxyTester, IConfiguration config, SemaphoreSlim semaphore, FileHandler filehandler, MenuRenderer menuRenderer, CheckerStats checkerStats) {
+    internal class ProxyChecker(IProxyTester proxyTester, SemaphoreSlim semaphore, FileHandler filehandler, MenuRenderer menuRenderer, CheckerStats checkerStats, SettingConfigurator settingConfigurator) {
         private readonly IProxyTester _proxyTester = proxyTester ?? throw new ArgumentNullException(nameof(proxyTester));
         private readonly FileHandler _filehandler = filehandler ?? throw new ArgumentNullException(nameof(filehandler));
         private readonly SemaphoreSlim _semaphore = semaphore ?? throw new ArgumentNullException(nameof(semaphore));
         private readonly MenuRenderer _menuRenderer = menuRenderer ?? throw new ArgumentNullException(nameof(menuRenderer));
         private readonly CheckerStats _checkerStats = checkerStats ?? throw new ArgumentNullException(nameof(checkerStats));
-        private readonly string _host = config["Setting:CheckProxySite"] ?? "https://google.com";
-        private readonly int _timeout = int.Parse(config["Setting:ProxyTimeout"] ?? "3000");
-        private readonly int _maxRetries = int.Parse(config["Setting:ProxyRetries"] ?? "2");
+        private readonly string _host = settingConfigurator.CheckProxySite;
+        private readonly int _timeout = settingConfigurator.ProxyTimeout;
+        private readonly int _maxRetries = settingConfigurator.ProxyRetries;
         private readonly object _lock = new();
 
         public async Task CheckProxies() {
@@ -63,6 +63,8 @@ namespace WaveProxyAIO.Core {
                         _checkerStats.ValidProxies++;
                         _filehandler.AppendCheckedProxyToFile(proxy);
                         return;
+                    } else {
+                        _checkerStats.TotalRetries++;
                     }
                 } finally {
                     attempt++;
@@ -73,8 +75,6 @@ namespace WaveProxyAIO.Core {
                         _checkerStats.InvalidProxies++;
                     }
                 }
-
-                _checkerStats.TotalRetries++;
             }
         }
 

@@ -1,6 +1,5 @@
 ﻿//TODO: Remove depreciated Methods from all classes
 //TODO: Improve variable names + update naming for consistency
-//TODO: Remove duplicate GradientStrategy
 //TODO: Refactor CheckerStats
 //TODO: Refactor ScraperStats
 //TODO: Refactor ProxyChecker to return Proxy not Bool
@@ -22,3 +21,4 @@
 
 
 //DONE: Move Non-ASCII Art to MenuRenderer
+//DONE: Remove duplicate GradientStrategy

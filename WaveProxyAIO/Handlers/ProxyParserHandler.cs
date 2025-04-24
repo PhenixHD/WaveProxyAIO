@@ -2,8 +2,8 @@
 using WaveProxyAIO.Helpers;
 using WaveProxyAIO.Interfaces;
 
-namespace WaveProxyAIO.Core {
-    internal class ProxyParser(HttpClient client) : IProxyParser {
+namespace WaveProxyAIO.Handlers {
+    internal class ProxyParserHandler(HttpClient client) : IProxyParser {
         private readonly HttpClient _client = client ?? throw new ArgumentNullException(nameof(client));
         private readonly Regex _proxyRegex = RegexHelper.ProxyRegexPattern();
         private static readonly char[] _lineSeparators = ['\r', '\n'];

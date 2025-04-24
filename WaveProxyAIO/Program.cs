@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using WaveProxyAIO.Configurations;
 using WaveProxyAIO.Core;
 using WaveProxyAIO.Handlers;
 using WaveProxyAIO.Interfaces;
@@ -36,9 +37,10 @@ namespace WaveProxyAIO {
             services.AddSingleton<HttpClient>(client);
             services.AddSingleton<SemaphoreSlim>(semaphore);
             services.AddSingleton<IConfiguration>(config);
-            services.AddSingleton<IProxyParser, ProxyParser>();
+            services.AddSingleton<IProxyParser, ProxyParserHandler>();
             services.AddSingleton<IColorGradient, ColorGradientHandler>();
             services.AddSingleton<GradientDesigner>();
+            services.AddSingleton<SettingConfigurator>();
             services.AddSingleton<ProxyScraper>();
             services.AddSingleton<ProxyChecker>();
             services.AddSingleton<MenuRenderer>();

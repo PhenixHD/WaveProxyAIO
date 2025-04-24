@@ -1,17 +1,18 @@
 ﻿using Microsoft.Extensions.Configuration;
+using WaveProxyAIO.Configurations;
 using WaveProxyAIO.Handlers;
 using WaveProxyAIO.Interfaces;
 using WaveProxyAIO.UI;
 
 namespace WaveProxyAIO.Core {
-    internal class ProxyScraper(IProxyParser parser, MenuRenderer menuRenderer, ScraperStats scraperStats, SemaphoreSlim semaphore, IConfiguration config, FileHandler filehandler) {
+    internal class ProxyScraper(IProxyParser parser, MenuRenderer menuRenderer, ScraperStats scraperStats, SemaphoreSlim semaphore, FileHandler filehandler, SettingConfigurator settingConfigurator) {
         private readonly IProxyParser _parser = parser ?? throw new ArgumentNullException(nameof(parser));
         private readonly MenuRenderer _menuRenderer = menuRenderer ?? throw new ArgumentNullException(nameof(menuRenderer));
         private readonly ScraperStats _scraperStats = scraperStats ?? throw new ArgumentNullException(nameof(scraperStats));
         private readonly SemaphoreSlim _semaphore = semaphore ?? throw new ArgumentNullException(nameof(semaphore));
         private readonly FileHandler _filehandler = filehandler ?? throw new ArgumentException(nameof(filehandler));
-        private readonly bool _removeDupe = bool.Parse(config["Setting:RemoveDupe"] ?? "true");
-        private readonly int _maxRetries = int.Parse(config["Setting:WebsiteRetries"] ?? "2");
+        private readonly bool _removeDupe = settingConfigurator.RemoveDupe;
+        private readonly int _websiteRetries = settingConfigurator.WebsiteRetries;
         private readonly object _lock = new();
 
         public async Task ScrapeProxies() {
@@ -70,7 +71,7 @@ namespace WaveProxyAIO.Core {
         private async Task ParseUrl(string url, HashSet<string> distinctProxies) {
             int attempt = 0;
 
-            while (attempt < _maxRetries) {
+            while (attempt < _websiteRetries) {
                 try {
                     attempt++;
                     string[] scrapedProxies = await _parser.ParseWebsite(url);
@@ -89,13 +90,13 @@ namespace WaveProxyAIO.Core {
                     return;
                 } catch (HttpRequestException e) {
                     _filehandler.AppendLogToFile($"HttpRequestException for URL {url}: {e.Message}");
+                    _scraperStats.TotalRetries++;
                 } catch (Exception e) {
                     _filehandler.AppendLogToFile($"General exception for URL {url}: {e.Message}");
-                } finally {
                     _scraperStats.TotalRetries++;
                 }
 
-                if (attempt >= _maxRetries) {
+                if (attempt >= _websiteRetries) {
                     lock (_lock) {
                         _scraperStats.InvalidUrls++;
                     }
