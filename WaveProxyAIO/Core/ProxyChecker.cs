@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using System.Diagnostics;
 using WaveProxyAIO.Handlers;
 using WaveProxyAIO.Interfaces;
 using WaveProxyAIO.UI;
@@ -50,9 +49,7 @@ namespace WaveProxyAIO.Core {
 
         private void FinalizeChecking() {
             _menuRenderer.ShowCheckerStatus();
-            ConsoleTextFormatter.PrintEmptyLine(2);
-            Console.WriteLine("Press any key to return...");
-            Console.ReadKey();
+            _menuRenderer.ShowReturnMenu();
         }
 
         private async Task ProcessProxy(string proxy) {
@@ -88,9 +85,7 @@ namespace WaveProxyAIO.Core {
             if (!_filehandler.CheckProxyFileExists()) {
                 _menuRenderer.ShowProxyFileMissing();
                 _filehandler.CreateProxyFile();
-                ConsoleTextFormatter.PrintEmptyLine(4);
-                Console.WriteLine("Press any key to return...");
-                Console.ReadKey();
+                _menuRenderer.ShowReturnMenu();
                 return false;
             }
 

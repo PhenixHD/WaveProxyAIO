@@ -41,24 +41,5 @@ namespace WaveProxyAIO.UI {
                     @"/___/_/|_/_/  \____/ "
                 ];
         }
-
-        public static string[] MainMenuSelectionText() {
-            return [
-                    @"[1] Scrape Proxies",
-                    @"[2] Check Proxies",
-                    @"[3] Information",
-                    @"[9] Exit"
-                ];
-        }
-
-        public static string[] InfoText() {
-            return [
-                    @"This is a learning project",
-                    @"",
-                    @"Wave Proxy AIO [C#]",
-                    @"Made with <3 by PhenixHD",
-                    @"Github - https://github.com/PhenixHD"
-                ];
-        }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace WaveProxyAIO.Interfaces {
 
-    internal interface IGradientStrategy {
+    internal interface IColorGradient {
         Color ColorRGB(int position, int totalLength, Color startColor, Color endColor);
     }
 }

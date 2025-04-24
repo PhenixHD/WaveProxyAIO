@@ -19,11 +19,13 @@ namespace WaveProxyAIO.Handlers {
                         return;
 
                     case '2':
+                        Console.Clear();
                         _menuRenderer.ShowCheckerMenu();
                         await _checker.CheckProxies();
                         return;
 
                     case '3':
+                        Console.Clear();
                         _menuRenderer.ShowInfoMenu();
                         return;
 
@@ -32,7 +34,6 @@ namespace WaveProxyAIO.Handlers {
                         break;
 
                     default:
-                        _menuRenderer.ShowMainMenu();
                         break;
                 }
             }

@@ -35,9 +35,7 @@ namespace WaveProxyAIO.Core {
             if (!_filehandler.CheckUrlFileExists()) {
                 _menuRenderer.ShowUrlFileMissing();
                 _filehandler.CreateUrlFile();
-                ConsoleTextFormatter.PrintEmptyLine(4);
-                Console.WriteLine("Press any key to return...");
-                Console.ReadKey();
+                _menuRenderer.ShowReturnMenu();
                 return false;
             }
 
@@ -113,9 +111,7 @@ namespace WaveProxyAIO.Core {
             }
 
             _menuRenderer.ShowScraperStatus();
-            ConsoleTextFormatter.PrintEmptyLine(2);
-            Console.WriteLine("Press any key to return...");
-            Console.ReadKey();
+            _menuRenderer.ShowReturnMenu();
         }
 
     }

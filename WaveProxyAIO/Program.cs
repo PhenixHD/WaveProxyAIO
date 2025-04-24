@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using WaveProxyAIO.Core;
 using WaveProxyAIO.Handlers;
 using WaveProxyAIO.Interfaces;
-using WaveProxyAIO.Strategies;
 using WaveProxyAIO.UI;
 
 namespace WaveProxyAIO {
@@ -20,12 +19,6 @@ namespace WaveProxyAIO {
                 .Build();
 
             IServiceCollection services = new ServiceCollection();
-
-            string? gradientType = config["GradientType"];
-            services.AddSingleton<IGradientStrategy>(provider => gradientType switch {
-                "Horizontal" => new HorizontalGradientStrategy(),
-                _ => new VerticalGradientStrategy()
-            });
 
             string? proxyType = config["Setting:ProxyType"];
             services.AddSingleton<IProxyTester>(tester => proxyType switch {
@@ -44,6 +37,7 @@ namespace WaveProxyAIO {
             services.AddSingleton<SemaphoreSlim>(semaphore);
             services.AddSingleton<IConfiguration>(config);
             services.AddSingleton<IProxyParser, ProxyParser>();
+            services.AddSingleton<IColorGradient, ColorGradientHandler>();
             services.AddSingleton<GradientDesigner>();
             services.AddSingleton<ProxyScraper>();
             services.AddSingleton<ProxyChecker>();
