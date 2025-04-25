@@ -33,6 +33,7 @@ namespace WaveProxyAIO.Configurations {
         public void Reset() {
             lock (_lock) {
                 TotalUrls = 0;
+                TotalRetryAttempts = 0;
                 ParsedUrls = 0;
                 ValidUrlsCount = 0;
                 InvalidUrlsCount = 0;
