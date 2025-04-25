@@ -13,8 +13,6 @@
 //TODO: Make everything more modular for Scalability
 //TODO: Add unit Test for main components (Scraping, Checking, Rendering UI, Gradient, reading/writing files etc.)
 //TODO: Optimize performance for Scraping & Checking
-//TODO: Add UI for Rotating Proxy
-//TODO: Implement Rotating Proxies with exit conditions
 
 
 

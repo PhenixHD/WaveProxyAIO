@@ -16,8 +16,6 @@ namespace WaveProxyAIO.Handlers {
             _checkedProxiesFilePath = Path.Combine(_currentDirectory, "CheckedProxies.txt");
         }
 
-        public bool CheckUrlFileExists() => File.Exists(_urlFilePath) ? true : false;
-
         public void CreateUrlFile() {
             Process.Start(new ProcessStartInfo {
                 FileName = "explorer.exe",
@@ -38,25 +36,25 @@ namespace WaveProxyAIO.Handlers {
             File.Create(_proxyFilePath).Dispose();
         }
 
+        public bool CheckUrlFileExists() => File.Exists(_urlFilePath) ? true : false;
+
+        public bool CheckProxyFileExists() => File.Exists(_proxyFilePath) ? true : false;
+
         public List<string> GetUrlsFromFile() => [.. File.ReadAllLines(_urlFilePath)];
-
-        public void ClearProxyFile() => File.WriteAllText(_proxyFilePath, string.Empty);
-
-        public void AppendProxiesToFile(string[] proxyArray) => File.AppendAllLines(_proxyFilePath, proxyArray);
-
-        public void WriteProxiesToFile(string[] proxyArray) => File.WriteAllLines(_proxyFilePath, proxyArray);
 
         public List<string> GetProxiesFromFile() => [.. File.ReadAllLines(_proxyFilePath)];
 
-        public void ClearLogFile() => File.WriteAllText(_logFilePath, string.Empty);
-
-        public void AppendLogToFile(string logContent) => File.AppendAllTextAsync(_logFilePath, $"{DateTime.Now:HH:mm:ss}: {logContent}{Environment.NewLine}");
-
-        public void AppendCheckedProxyToFile(string proxy) => File.AppendAllTextAsync(_checkedProxiesFilePath, $"{proxy}{Environment.NewLine}");
+        public void ClearProxyFile() => File.WriteAllText(_proxyFilePath, string.Empty);
 
         public void ClearCheckedProxyFile() => File.WriteAllText(_checkedProxiesFilePath, string.Empty);
 
-        public bool CheckProxyFileExists() => File.Exists(_proxyFilePath) ? true : false;
+        public void ClearLogFile() => File.WriteAllText(_logFilePath, string.Empty);
+
+        public void AppendProxiesToFile(string[] proxyArray) => File.AppendAllLines(_proxyFilePath, proxyArray);
+
+        public void AppendCheckedProxyToFile(string proxy) => File.AppendAllTextAsync(_checkedProxiesFilePath, $"{proxy}{Environment.NewLine}");
+
+        public void AppendLogToFile(string logContent) => File.AppendAllTextAsync(_logFilePath, $"{DateTime.Now:HH:mm:ss}: {logContent}{Environment.NewLine}");
 
     }
 }

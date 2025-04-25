@@ -36,7 +36,7 @@ namespace WaveProxyAIO.Core {
                     lock (_lock) {
                         int currentLeft = Console.CursorLeft;
                         int currentTop = Console.CursorTop;
-                        _checkerStats.ParsedProxies++;
+                        _checkerStats.CheckedProxies++;
                         _menuRenderer.ShowCheckerStatus();
                         Console.SetCursorPosition(currentLeft, currentTop);
                     }
@@ -60,11 +60,11 @@ namespace WaveProxyAIO.Core {
                     bool isValid = await _proxyTester.TestProxyAsync(proxy, _host, _timeout);
 
                     if (isValid) {
-                        _checkerStats.ValidProxies++;
+                        _checkerStats.WorkingProxies++;
                         _filehandler.AppendCheckedProxyToFile(proxy);
                         return;
                     } else {
-                        _checkerStats.TotalRetries++;
+                        _checkerStats.TotalRetryAttempts++;
                     }
                 } finally {
                     attempt++;
@@ -72,7 +72,7 @@ namespace WaveProxyAIO.Core {
 
                 if (attempt >= _maxRetries) {
                     lock (_lock) {
-                        _checkerStats.InvalidProxies++;
+                        _checkerStats.NonWorkingProxies++;
                     }
                 }
             }

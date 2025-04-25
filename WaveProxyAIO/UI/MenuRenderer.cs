@@ -70,18 +70,18 @@ namespace WaveProxyAIO.UI {
                 string[] scraperStatus = [
                     "[ URL Status ]",
                     $"Parsed      : {_scraperStats.ParsedUrls} / {_scraperStats.TotalUrls}  ",
-                    $"Valid URLs  : {_scraperStats.ValidUrls} ({_scraperStats.ValidUrlsPercentage}%)    ",
-                    $"Failed URLs : {_scraperStats.InvalidUrls} ({_scraperStats.InvalidUrlsPercentage}%)    ",
-                    $"Retries     : {_scraperStats.TotalRetries}  ",
+                    $"Valid URLs  : {_scraperStats.ValidUrlsCount} ({_scraperStats.ValidUrlsPercentage}%)    ",
+                    $"Failed URLs : {_scraperStats.InvalidUrlsCount} ({_scraperStats.InvalidUrlsPercentage}%)    ",
+                    $"Retries     : {_scraperStats.TotalRetryAttempts}  ",
                     $"URLs/sec    : {_scraperStats.UrlsPerSecond}  ",
                     "",
                     "[ Proxy Stats ]",
                     $"Total found : {_scraperStats.TotalProxies}  ",
-                    $"Duplicates  : {_scraperStats.DuplicateCount}  ",
-                    $"Avg/Site    : {_scraperStats.ProxiesPerSite}  ",
+                    $"Duplicates  : {_scraperStats.DuplicateProxiesCount}  ",
+                    $"Avg/Site    : {_scraperStats.AverageProxiesPerUrl}  ",
                     "",
                     "[ Runtime ]",
-                    $"Uptime      : {_scraperStats.Runtime:hh\\:mm\\:ss}  ",
+                    $"Uptime      : {_scraperStats.SessionUptime:hh\\:mm\\:ss}  ",
                     $"Mem usage   : {_scraperStats.MemoryUsage} MB  "
                 ];
 
@@ -93,14 +93,14 @@ namespace WaveProxyAIO.UI {
             lock (_lock) {
                 string[] checkerStatus = [
                     "[ Proxy Stats ]",
-                    $"Progress    : {_checkerStats.ParsedProxies} / {_checkerStats.TotalProxies}  ",
-                    $"Valid       : {_checkerStats.ValidProxies} ({_checkerStats.ValidProxiesPercentage}%)    ",
-                    $"Invalid     : {_checkerStats.InvalidProxies} ({_checkerStats.InvalidProxiesPercentage}%)    ",
-                    $"Retries     : {_checkerStats.TotalRetries}  ",
-                    $"Proxies/sec : {_checkerStats.ProxiesPerSecond}  ",
+                    $"Progress    : {_checkerStats.CheckedProxies} / {_checkerStats.TotalProxies}  ",
+                    $"Valid       : {_checkerStats.WorkingProxies} ({_checkerStats.WorkingProxiesRate}%)    ",
+                    $"Invalid     : {_checkerStats.NonWorkingProxies} ({_checkerStats.NonWorkingProxiesRate}%)    ",
+                    $"Retries     : {_checkerStats.TotalRetryAttempts}  ",
+                    $"Proxies/sec : {_checkerStats.ProxiesCheckedPerSecond}  ",
                     "",
                     "[ Runtime ]",
-                    $"Uptime      : {_checkerStats.Runtime:hh\\:mm\\:ss}  ",
+                    $"Uptime      : {_checkerStats.SessionUptime:hh\\:mm\\:ss}  ",
                     $"Mem usage   : {_checkerStats.MemoryUsage} MB  "
                 ];
 

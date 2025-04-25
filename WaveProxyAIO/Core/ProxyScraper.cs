@@ -31,7 +31,7 @@ namespace WaveProxyAIO.Core {
         private bool PrepareScraping() {
             EmptyAllFiles();
             _scraperStats.Reset();
-            _scraperStats._start = DateTime.Now;
+            _scraperStats.SessionStart = DateTime.Now;
 
             if (!_filehandler.CheckUrlFileExists()) {
                 _menuRenderer.ShowUrlFileMissing();
@@ -86,19 +86,19 @@ namespace WaveProxyAIO.Core {
                         _filehandler.AppendProxiesToFile(scrapedProxies);
                     }
 
-                    _scraperStats.ValidUrls++;
+                    _scraperStats.ValidUrlsCount++;
                     return;
                 } catch (HttpRequestException e) {
                     _filehandler.AppendLogToFile($"HttpRequestException for URL {url}: {e.Message}");
-                    _scraperStats.TotalRetries++;
+                    _scraperStats.TotalRetryAttempts++;
                 } catch (Exception e) {
                     _filehandler.AppendLogToFile($"General exception for URL {url}: {e.Message}");
-                    _scraperStats.TotalRetries++;
+                    _scraperStats.TotalRetryAttempts++;
                 }
 
                 if (attempt >= _websiteRetries) {
                     lock (_lock) {
-                        _scraperStats.InvalidUrls++;
+                        _scraperStats.InvalidUrlsCount++;
                     }
                 }
             }
@@ -107,8 +107,8 @@ namespace WaveProxyAIO.Core {
         private void FinalizeScraping(HashSet<string> distinctProxies) {
             if (_removeDupe) {
                 string[] uniqueProxies = [.. distinctProxies];
-                _scraperStats.DuplicateCount = _scraperStats.TotalProxies - uniqueProxies.Length;
-                _filehandler.WriteProxiesToFile(uniqueProxies);
+                _scraperStats.DuplicateProxiesCount = _scraperStats.TotalProxies - uniqueProxies.Length;
+                _filehandler.AppendProxiesToFile(uniqueProxies);
             }
 
             _menuRenderer.ShowScraperStatus();
