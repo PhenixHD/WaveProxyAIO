@@ -51,13 +51,14 @@ namespace WaveProxyAIO.Core {
         private async Task ProcessAllUrlsAsync(List<string> urls, HashSet<string> distinctProxies) {
             IEnumerable<Task> tasks = urls.Select(async url => {
                 await _semaphore.WaitAsync();
+                bool isValid = false;
                 try {
-                    await ParseUrl(url, distinctProxies);
+                    isValid = await ParseUrl(url, distinctProxies);
                 } finally {
                     lock (_lock) {
                         int currentLeft = Console.CursorLeft;
                         int currentTop = Console.CursorTop;
-                        _scraperStats.ParsedUrls++;
+                        _scraperStats.IncrementParsedUrl(isValid);
                         _menuRenderer.ShowScraperStatus();
                         Console.SetCursorPosition(currentLeft, currentTop);
                     }
@@ -68,10 +69,10 @@ namespace WaveProxyAIO.Core {
             await Task.WhenAll(tasks);
         }
 
-        private async Task ParseUrl(string url, HashSet<string> distinctProxies) {
+        private async Task<bool> ParseUrl(string url, HashSet<string> distinctProxies) {
             int attempt = 0;
 
-            while (attempt < _websiteRetries) {
+            while (attempt <= _websiteRetries) {
                 try {
                     attempt++;
                     string[] scrapedProxies = await _parser.ParseWebsite(url);
@@ -79,29 +80,27 @@ namespace WaveProxyAIO.Core {
                     _scraperStats.TotalProxies += scrapedProxies.Length;
 
                     if (_removeDupe) {
-                        foreach (var proxy in scrapedProxies) {
+                        foreach (string proxy in scrapedProxies) {
                             distinctProxies.Add(proxy);
                         }
                     } else {
                         _filehandler.AppendProxiesToFile(scrapedProxies);
                     }
 
-                    _scraperStats.ValidUrlsCount++;
-                    return;
+                    return true;
                 } catch (HttpRequestException e) {
                     _filehandler.AppendLogToFile($"HttpRequestException for URL {url}: {e.Message}");
-                    _scraperStats.TotalRetryAttempts++;
                 } catch (Exception e) {
                     _filehandler.AppendLogToFile($"General exception for URL {url}: {e.Message}");
-                    _scraperStats.TotalRetryAttempts++;
-                }
-
-                if (attempt >= _websiteRetries) {
-                    lock (_lock) {
-                        _scraperStats.InvalidUrlsCount++;
-                    }
                 }
             }
+
+            lock (_lock) {
+                if (attempt > 1)
+                    _scraperStats.TotalRetryAttempts += attempt - 1;
+            }
+
+            return false;
         }
 
         private void FinalizeScraping(HashSet<string> distinctProxies) {

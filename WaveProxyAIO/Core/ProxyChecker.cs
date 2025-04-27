@@ -55,7 +55,7 @@ namespace WaveProxyAIO.Core {
         private async Task ProcessProxy(string proxy) {
             int attempt = 0;
 
-            while (attempt < _maxRetries) {
+            while (attempt <= _maxRetries) {
                 try {
                     bool isValid = await _proxyTester.TestProxyAsync(proxy, _host, _timeout);
 
@@ -63,18 +63,17 @@ namespace WaveProxyAIO.Core {
                         _checkerStats.WorkingProxies++;
                         _filehandler.AppendCheckedProxyToFile(proxy);
                         return;
-                    } else {
-                        _checkerStats.TotalRetryAttempts++;
                     }
+
                 } finally {
                     attempt++;
                 }
+            }
 
-                if (attempt >= _maxRetries) {
-                    lock (_lock) {
-                        _checkerStats.NonWorkingProxies++;
-                    }
-                }
+            lock (_lock) {
+                if (attempt > 1)
+                    _checkerStats.TotalRetryAttempts += attempt - 1;
+                _checkerStats.NonWorkingProxies++;
             }
         }
 

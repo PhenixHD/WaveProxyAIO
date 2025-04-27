@@ -1,5 +1,4 @@
-﻿//Handles Color Rendering
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Pastel;
 using System.Drawing;
 using WaveProxyAIO.Interfaces;

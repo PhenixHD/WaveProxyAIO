@@ -29,7 +29,6 @@ namespace WaveProxyAIO.Configurations {
         public TimeSpan SessionUptime => DateTime.Now - SessionStart;
         public DateTime SessionStart = DateTime.Now;
 
-        //TODO: Reset start time for Runtime calculation
         public void Reset() {
             lock (_lock) {
                 TotalUrls = 0;
@@ -40,6 +39,15 @@ namespace WaveProxyAIO.Configurations {
                 TotalProxies = 0;
                 DuplicateProxiesCount = 0;
                 SessionStart = DateTime.Now;
+            }
+        }
+        public void IncrementParsedUrl(bool isValid) {
+            lock (_lock) {
+                ParsedUrls++;
+                if (isValid)
+                    ValidUrlsCount++;
+                else
+                    InvalidUrlsCount++;
             }
         }
     }
