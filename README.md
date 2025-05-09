@@ -10,6 +10,7 @@
 
 <h4 align="center">A powerful, minimal proxy Scraper and Checker built for the command line using <a href="https://dotnet.microsoft.com/en-us/" target="_blank">.NET 8</a> and <a href="https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-12" target="_blank">C# 12</a>.</h4>
 
+
 <p align="center">
   <a href="https://dotnet.microsoft.com/en-us/"><img src="https://img.shields.io/badge/.NET-8.0-blueviolet"></a>
   <a href="#"><img src="https://img.shields.io/badge/License-MIT-green.svg"></a>
@@ -84,5 +85,5 @@ This software uses:
 WaveProxyAIO is released under the [MIT License](https://opensource.org/licenses/MIT).
 
 ---
-
+> Educational use only - 
 > GitHub [@PhenixHD](https://github.com/PhenixHD)
