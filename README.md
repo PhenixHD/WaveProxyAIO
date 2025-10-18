@@ -47,7 +47,7 @@ To clone and run this project, you'll need [Git](https://git-scm.com) and [.NET 
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/WaveProxyAIO
+git clone https://github.com/PhenixHD/WaveProxyAIO
 
 # Go into the project directory
 cd WaveProxyAIO
